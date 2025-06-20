@@ -1,0 +1,7 @@
+serviceAccountKey.json
+interior_settlement_data.json
+/dist/
+/build/
+*.spec
+__pycache__/
+.vscode/
