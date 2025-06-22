@@ -13,10 +13,9 @@ a = Analysis(
     pathex=[current_dir],
     binaries=[],
     datas=[
-        ('serviceAccountKey.json', '.'),
         ('HV.ico', '.'),
         ('login_dialog.py', '.')
-    ],
+    ] + ([('serviceAccountKey.json', '.')] if os.path.exists('serviceAccountKey.json') else []),
     hiddenimports=[
         'google.cloud.firestore',
         'google.cloud.firestore_v1',
