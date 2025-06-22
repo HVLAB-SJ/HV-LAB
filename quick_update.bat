@@ -4,7 +4,7 @@ echo.
 set /p V="Version: "
 git add .
 git commit -m "v%V%"
-git push
+git push origin master
 git tag v%V%
 git push origin v%V%
 echo.
