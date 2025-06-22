@@ -25,15 +25,15 @@ except ImportError:
 # Constants
 FIREBASE_DATABASE_URL = "https://hv-settlement-default-rtdb.firebaseio.com/"
 WINDOW_WIDTH = 2365
-WINDOW_HEIGHT = 1090  # 창 높이 수정
-WINDOW_WIDTH_NO_MEMO = 1715  # 메모장이 닫혔을 때의 창 너비
+WINDOW_HEIGHT = 1090  # �??�이 ?�정
+WINDOW_WIDTH_NO_MEMO = 1715  # 메모?�이 ?�혔???�의 �??�비
 TABLE_WIDTH = 1330
 MEMO_WIDTH = 640
 LEFT_PANEL_WIDTH = 350
 
-# 업데이트 관련 상수
-UPDATE_CHECK_URL = "https://api.github.com/repos/HVLAB-SJ/HV-LAB/releases/latest"  # GitHub 릴리즈 URL
-CURRENT_VERSION = "1.6.1"  # 현재 버전
+# ?�데?�트 관???�수
+UPDATE_CHECK_URL = "https://api.github.com/repos/HVLAB-SJ/HV-LAB/releases/latest"  # GitHub 릴리�?URL
+CURRENT_VERSION = ""  # ?�재 버전
 
 # Style constants
 BUTTON_STYLE = """
@@ -104,7 +104,7 @@ class UpdateChecker(QObject):
         
     def check_for_updates(self):
         try:
-            # GitHub API를 통해 최신 릴리즈 확인
+            # GitHub API�??�해 최신 릴리�??�인
             response = requests.get(UPDATE_CHECK_URL, timeout=10)
             if response.status_code == 200:
                 release_data = response.json()
@@ -115,10 +115,10 @@ class UpdateChecker(QObject):
                     self.update_available.emit(latest_version, download_url)
                     
         except Exception as e:
-            print(f"업데이트 확인 실패: {e}")
+            print(f"?�데?�트 ?�인 ?�패: {e}")
     
     def _compare_versions(self, version1, version2):
-        """버전 비교 (version1 > version2 이면 양수 반환)"""
+        """버전 비교 (version1 > version2 ?�면 ?�수 반환)"""
         v1_parts = [int(x) for x in version1.split('.')]
         v2_parts = [int(x) for x in version2.split('.')]
         
@@ -155,7 +155,7 @@ class FirebaseSync(QObject):
         
     def initialize_firebase(self):
         if not FIREBASE_AVAILABLE:
-            self.sync_status_changed.emit("⚠️ 오프라인 모드", "color: #95a5a6; font-weight: bold;")
+            self.sync_status_changed.emit("?�️ ?�프?�인 모드", "color: #95a5a6; font-weight: bold;")
             return False
             
         try:
@@ -167,7 +167,7 @@ class FirebaseSync(QObject):
                 if os.path.exists(alt_path):
                     service_account_path = alt_path
                 else:
-                    self.sync_status_changed.emit("⚠️ 오프라인 모드", "color: #95a5a6; font-weight: bold;")
+                    self.sync_status_changed.emit("?�️ ?�프?�인 모드", "color: #95a5a6; font-weight: bold;")
                     return False
             
             if not firebase_admin._apps:
@@ -178,7 +178,7 @@ class FirebaseSync(QObject):
             return True
             
         except Exception:
-            self.sync_status_changed.emit("⚠️ 오프라인 모드", "color: #95a5a6; font-weight: bold;")
+            self.sync_status_changed.emit("?�️ ?�프?�인 모드", "color: #95a5a6; font-weight: bold;")
             return False
     
     def start_sync(self):
@@ -187,9 +187,9 @@ class FirebaseSync(QObject):
                 return
             self.load_from_firebase()
             self.listener = self.db_ref.listen(self.on_firebase_change)
-            self.sync_status_changed.emit("☁️ 실시간 동기화 중", "color: #27ae60; font-weight: bold;")
+            self.sync_status_changed.emit("?�️ ?�시�??�기??�?, "color: #27ae60; font-weight: bold;")
         except Exception:
-            self.sync_status_changed.emit("⚠️ 동기화 오류", "color: #e74c3c; font-weight: bold;")
+            self.sync_status_changed.emit("?�️ ?�기???�류", "color: #e74c3c; font-weight: bold;")
     
     def stop_sync(self):
         try:
@@ -221,7 +221,7 @@ class FirebaseSync(QObject):
             self.is_syncing = False
         except Exception:
             self.is_syncing = False
-            self.sync_status_changed.emit("⚠️ 데이터 로드 실패", "color: #e74c3c; font-weight: bold;")
+            self.sync_status_changed.emit("?�️ ?�이??로드 ?�패", "color: #e74c3c; font-weight: bold;")
     
     def save_to_firebase(self, data):
         if self.is_syncing:
@@ -246,18 +246,18 @@ class FirebaseSync(QObject):
             self.last_data_hash = self._calculate_data_hash(data)
             
             current_time_str = datetime.now().strftime("%H:%M:%S")
-            self.sync_status_changed.emit(f"☁️ 동기화 완료 ({current_time_str})", "color: #27ae60; font-weight: bold;")
-            self.main_window.statusBar().showMessage(f"✅ 클라우드 자동 저장 완료 - {current_time_str}", 3000)
+            self.sync_status_changed.emit(f"?�️ ?�기???�료 ({current_time_str})", "color: #27ae60; font-weight: bold;")
+            self.main_window.statusBar().showMessage(f"???�라?�드 ?�동 ?�???�료 - {current_time_str}", 3000)
             
             QTimer.singleShot(2000, lambda: setattr(self, 'local_update', False))
             
-            # 3초 후 다시 실시간 동기화 상태로 복원
-            QTimer.singleShot(3000, lambda: self.sync_status_changed.emit("☁️ 실시간 동기화 중", "color: #27ae60; font-weight: bold;"))
+            # 3�????�시 ?�시�??�기???�태�?복원
+            QTimer.singleShot(3000, lambda: self.sync_status_changed.emit("?�️ ?�시�??�기??�?, "color: #27ae60; font-weight: bold;"))
             
         except Exception:
             self.local_update = False
-            self.sync_status_changed.emit("⚠️ 동기화 실패", "color: #e74c3c; font-weight: bold;")
-            self.main_window.statusBar().showMessage("❌ 클라우드 저장 실패 - 인터넷 연결을 확인하세요", 5000)
+            self.sync_status_changed.emit("?�️ ?�기???�패", "color: #e74c3c; font-weight: bold;")
+            self.main_window.statusBar().showMessage("???�라?�드 ?�???�패 - ?�터???�결???�인?�세??, 5000)
     
     def on_firebase_change(self, event):
         try:
@@ -277,8 +277,8 @@ class FirebaseSync(QObject):
                 if new_hash != self.last_data_hash:
                     self.last_data_hash = new_hash
                     self.data_changed.emit(data)
-                    self.sync_status_changed.emit("☁️ 다른 사용자가 수정함", "color: #3498db; font-weight: bold;")
-                    QTimer.singleShot(5000, lambda: self.sync_status_changed.emit("☁️ 실시간 동기화 중", "color: #27ae60; font-weight: bold;"))
+                    self.sync_status_changed.emit("?�️ ?�른 ?�용?��? ?�정??, "color: #3498db; font-weight: bold;")
+                    QTimer.singleShot(5000, lambda: self.sync_status_changed.emit("?�️ ?�시�??�기??�?, "color: #27ae60; font-weight: bold;"))
         except:
             pass
     
@@ -290,7 +290,7 @@ class FirebaseSync(QObject):
                 try:
                     self.db_ref.child('_test_connection').get()
                 except:
-                    self.sync_status_changed.emit("🔄 재연결 중...", "color: #f39c12; font-weight: bold;")
+                    self.sync_status_changed.emit("?�� ?�연�?�?..", "color: #f39c12; font-weight: bold;")
                     self.start_sync()
         except:
             pass
@@ -315,15 +315,14 @@ class FirebaseSync(QObject):
     
     def _update_sync_status(self, status, style):
         if hasattr(self.main_window, 'sync_status_label'):
-            # 상태별 아이콘과 툴팁 설정
-            icon_text = "●"  # 기본 원형 아이콘
-            tooltip = status
+            # ?�태�??�이콘과 ?�팁 ?�정
+            icon_text = "??  # 기본 ?�형 ?�이�?            tooltip = status
             
-            # 색상만 스타일에서 추출
+            # ?�상�??��??�에??추출
             color_match = re.search(r'color:\s*([^;]+)', style)
             color = color_match.group(1) if color_match else "#27ae60"
             
-            # 간단한 아이콘 스타일 적용
+            # 간단???�이�??��????�용
             icon_style = f"""
                 QLabel {{
                     color: {color};
@@ -339,130 +338,123 @@ class FirebaseSync(QObject):
             
             self.main_window.sync_status_label.setText(icon_text)
             self.main_window.sync_status_label.setStyleSheet(icon_style)
-            self.main_window.sync_status_label.setToolTip(status.replace("☁️ ", "").replace("⚠️ ", "").replace("💾 ", "").replace("🔄 ", ""))
+            self.main_window.sync_status_label.setToolTip(status.replace("?�️ ", "").replace("?�️ ", "").replace("?�� ", "").replace("?�� ", ""))
     
 
 
 class ProjectComboBox(QComboBox):
-    """프로젝트 이름과 동 호수를 두 줄로 표시하는 커스텀 콤보박스"""
+    """?�로?�트 ?�름�????�수�???줄로 ?�시?�는 커스?� 콤보박스"""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.default_font_size = 14  # 프로젝트명 15px → 14px
-        self.sub_font_size = 12      # 동 호수 12px
+        self.default_font_size = 14  # ?�로?�트�?15px ??14px
+        self.sub_font_size = 12      # ???�수 12px
         self.min_font_size = 10
     
     def paintEvent(self, event):
         painter = QStylePainter(self)
         
-        # 콤보박스 프레임 그리기
-        opt = QStyleOptionComboBox()
+        # 콤보박스 ?�레??그리�?        opt = QStyleOptionComboBox()
         self.initStyleOption(opt)
         painter.drawComplexControl(QStyle.CC_ComboBox, opt)
         
-        # 텍스트 영역 계산
+        # ?�스???�역 계산
         text_rect = self.style().subControlRect(QStyle.CC_ComboBox, opt, QStyle.SC_ComboBoxEditField, self)
-        # 적절한 여백으로 텍스트 영역 조정
+        # ?�절???�백?�로 ?�스???�역 조정
         text_rect = text_rect.adjusted(5, 12, -5, -12)
         
-        # 현재 텍스트 가져오기
-        text = self.currentText()
+        # ?�재 ?�스??가?�오�?        text = self.currentText()
         
-        # 안티앨리어싱 활성화
-        painter.setRenderHint(QPainter.Antialiasing)
+        # ?�티?�리?�싱 ?�성??        painter.setRenderHint(QPainter.Antialiasing)
         painter.setRenderHint(QPainter.TextAntialiasing)
         
-        if text == "프로젝트 관리":
-            # 프로젝트 관리는 한 줄로 가운데 표시
-            font = QFont("맑은 고딕", self.default_font_size)
+        if text == "?�로?�트 관�?:
+            # ?�로?�트 관리는 ??줄로 가?�데 ?�시
+            font = QFont("맑�? 고딕", self.default_font_size)
             font.setBold(True)
             painter.setFont(font)
             painter.setPen(QPen(self.palette().text().color()))
             
-            # 3px 아래로 조정된 영역
+            # 3px ?�래�?조정???�역
             adjusted_rect = QRect(text_rect.x(), text_rect.y() + 3, text_rect.width(), text_rect.height())
             painter.drawText(adjusted_rect, Qt.AlignCenter, text)
         elif text and " | " in text:
-            # 프로젝트명과 동 호수 분리
+            # ?�로?�트명과 ???�수 분리
             parts = text.split(" | ", 1)
             project_name = parts[0]
             unit_info = parts[1] if len(parts) > 1 else ""
             
-            # 전체 높이의 중앙에 텍스트 배치
+            # ?�체 ?�이??중앙???�스??배치
             total_height = text_rect.height()
-            line_spacing = 2  # 두 줄 사이 간격
+            line_spacing = 2  # ??�??�이 간격
             
-            # 프로젝트명 그리기 (위쪽)
-            font1 = QFont("맑은 고딕", self.default_font_size)
+            # ?�로?�트�?그리�?(?�쪽)
+            font1 = QFont("맑�? 고딕", self.default_font_size)
             font1.setBold(True)
             painter.setFont(font1)
             painter.setPen(QPen(self.palette().text().color()))
             
-            # 위쪽 텍스트 영역 - 중앙 정렬 (3px 아래로)
+            # ?�쪽 ?�스???�역 - 중앙 ?�렬 (3px ?�래�?
             fm1 = QFontMetrics(font1)
             text1_height = fm1.height()
             
-            top_y = text_rect.center().y() - line_spacing // 2 - text1_height // 2 + 3  # 3px 아래로
-            top_rect = QRect(text_rect.x(), top_y - text1_height // 2, text_rect.width(), text1_height)
+            top_y = text_rect.center().y() - line_spacing // 2 - text1_height // 2 + 3  # 3px ?�래�?            top_rect = QRect(text_rect.x(), top_y - text1_height // 2, text_rect.width(), text1_height)
             painter.drawText(top_rect, Qt.AlignCenter, project_name)
             
-            # 동 호수 그리기 (아래쪽)
+            # ???�수 그리�?(?�래�?
             if unit_info:
-                font2 = QFont("맑은 고딕", self.sub_font_size)
-                font2.setWeight(QFont.Light)  # 가늘게 설정
+                font2 = QFont("맑�? 고딕", self.sub_font_size)
+                font2.setWeight(QFont.Light)  # 가?�게 ?�정
                 painter.setFont(font2)
                 
                 fm2 = QFontMetrics(font2)
                 text2_height = fm2.height()
                 
-                bottom_y = text_rect.center().y() + line_spacing // 2 + text2_height // 2 + 3  # 3px 아래로
-                bottom_rect = QRect(text_rect.x(), bottom_y - text2_height // 2, text_rect.width(), text2_height)
+                bottom_y = text_rect.center().y() + line_spacing // 2 + text2_height // 2 + 3  # 3px ?�래�?                bottom_rect = QRect(text_rect.x(), bottom_y - text2_height // 2, text_rect.width(), text2_height)
                 painter.drawText(bottom_rect, Qt.AlignCenter, unit_info)
         else:
-            # 동 호수가 없는 경우 프로젝트명만 가운데 표시
-            font = QFont("맑은 고딕", self.default_font_size)
+            # ???�수가 ?�는 경우 ?�로?�트명만 가?�데 ?�시
+            font = QFont("맑�? 고딕", self.default_font_size)
             font.setBold(True)
             painter.setFont(font)
             painter.setPen(QPen(self.palette().text().color()))
             
-            # 3px 아래로 조정된 영역
+            # 3px ?�래�?조정???�역
             adjusted_rect = QRect(text_rect.x(), text_rect.y() + 3, text_rect.width(), text_rect.height())
             painter.drawText(adjusted_rect, Qt.AlignCenter, text)
 
 
 class ProjectComboDelegate(QStyledItemDelegate):
-    """프로젝트 콤보박스 드롭다운 리스트의 각 항목을 두 줄로 표시하는 델리게이트"""
+    """?�로?�트 콤보박스 ?�롭?�운 리스?�의 �???��????줄로 ?�시?�는 ?�리게이??""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.default_font_size = 14  # 프로젝트명 15px → 14px
-        self.sub_font_size = 12      # 동 호수 12px
+        self.default_font_size = 14  # ?�로?�트�?15px ??14px
+        self.sub_font_size = 12      # ???�수 12px
         self.min_font_size = 10
     
     def paint(self, painter, option, index):
         text = index.data(Qt.DisplayRole)
         
-        if text == "프로젝트 관리":
-            # 프로젝트 관리는 커스텀 페인팅 사용
+        if text == "?�로?�트 관�?:
+            # ?�로?�트 관리는 커스?� ?�인???�용
             CustomDelegate.paint(self, painter, option, index)
             return
         
         painter.save()
         
-        # 안티앨리어싱 활성화
-        painter.setRenderHint(QPainter.Antialiasing)
+        # ?�티?�리?�싱 ?�성??        painter.setRenderHint(QPainter.Antialiasing)
         painter.setRenderHint(QPainter.TextAntialiasing)
         
-        # 배경 그리기
-        if option.state & QStyle.State_Selected:
+        # 배경 그리�?        if option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
             painter.setPen(option.palette.highlightedText().color())
         else:
             painter.setPen(option.palette.text().color())
         
-        # 텍스트 영역 계산 - 적절한 상하 여백
+        # ?�스???�역 계산 - ?�절???�하 ?�백
         text_rect = option.rect.adjusted(5, 12, -5, -12)
         
         if text and " | " in text:
-            # 프로젝트명과 동 호수 분리
+            # ?�로?�트명과 ???�수 분리
             parts = text.split(" | ", 1)
             project_name = parts[0]
             unit_info = parts[1] if len(parts) > 1 else ""
@@ -470,44 +462,42 @@ class ProjectComboDelegate(QStyledItemDelegate):
             total_height = text_rect.height()
             line_spacing = 2
             
-            # 프로젝트명 그리기 (위쪽)
-            font1 = QFont("맑은 고딕", self.default_font_size)
+            # ?�로?�트�?그리�?(?�쪽)
+            font1 = QFont("맑�? 고딕", self.default_font_size)
             font1.setBold(True)
             painter.setFont(font1)
             
             fm1 = QFontMetrics(font1)
             text1_height = fm1.height()
             
-            top_y = text_rect.center().y() - line_spacing // 2 - text1_height // 2 + 3  # 3px 아래로
-            top_rect = QRect(text_rect.x(), top_y - text1_height // 2, text_rect.width(), text1_height)
+            top_y = text_rect.center().y() - line_spacing // 2 - text1_height // 2 + 3  # 3px ?�래�?            top_rect = QRect(text_rect.x(), top_y - text1_height // 2, text_rect.width(), text1_height)
             painter.drawText(top_rect, Qt.AlignCenter, project_name)
             
-            # 동 호수 그리기 (아래쪽)
+            # ???�수 그리�?(?�래�?
             if unit_info:
-                font2 = QFont("맑은 고딕", self.sub_font_size)
-                font2.setWeight(QFont.Light)  # 가늘게 설정
+                font2 = QFont("맑�? 고딕", self.sub_font_size)
+                font2.setWeight(QFont.Light)  # 가?�게 ?�정
                 painter.setFont(font2)
                 
                 fm2 = QFontMetrics(font2)
                 text2_height = fm2.height()
                 
-                bottom_y = text_rect.center().y() + line_spacing // 2 + text2_height // 2 + 3  # 3px 아래로
-                bottom_rect = QRect(text_rect.x(), bottom_y - text2_height // 2, text_rect.width(), text2_height)
+                bottom_y = text_rect.center().y() + line_spacing // 2 + text2_height // 2 + 3  # 3px ?�래�?                bottom_rect = QRect(text_rect.x(), bottom_y - text2_height // 2, text_rect.width(), text2_height)
                 painter.drawText(bottom_rect, Qt.AlignCenter, unit_info)
         else:
-            # 동 호수가 없는 경우 프로젝트명만 가운데 표시
-            font = QFont("맑은 고딕", self.default_font_size)
+            # ???�수가 ?�는 경우 ?�로?�트명만 가?�데 ?�시
+            font = QFont("맑�? 고딕", self.default_font_size)
             font.setBold(True)
             painter.setFont(font)
             
-            # 3px 아래로 조정된 영역
+            # 3px ?�래�?조정???�역
             adjusted_rect = QRect(text_rect.x(), text_rect.y() + 3, text_rect.width(), text_rect.height())
             painter.drawText(adjusted_rect, Qt.AlignCenter, text)
         
         painter.restore()
     
     def sizeHint(self, option, index):
-        return QSize(option.rect.width(), 85)  # 높이를 85로 설정
+        return QSize(option.rect.width(), 85)  # ?�이�?85�??�정
 
 class CustomDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
@@ -516,7 +506,7 @@ class CustomDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         text = index.data(Qt.DisplayRole)
         
-        if text in ["프로젝트 관리", "공정 관리"]:
+        if text in ["?�로?�트 관�?, "공정 관�?]:
             painter.save()
             
             if option.state & QStyle.State_Selected:
@@ -527,15 +517,13 @@ class CustomDelegate(QStyledItemDelegate):
             painter.setPen(QPen(QColor(206, 212, 218), 1))
             painter.drawLine(option.rect.topLeft(), option.rect.topRight())
             
-            if text == "프로젝트 관리":
-                font = QFont("맑은 고딕", 12)  # 프로젝트 관리 12px로 변경
-            else:
-                font = QFont("맑은 고딕", 9)  # 공정 관리는 그대로
-            painter.setFont(font)
+            if text == "?�로?�트 관�?:
+                font = QFont("맑�? 고딕", 12)  # ?�로?�트 관�?12px�?변�?            else:
+                font = QFont("맑�? 고딕", 9)  # 공정 관리는 그�?�?            painter.setFont(font)
             painter.setPen(QColor(73, 80, 87))
             
-            # 공정 관리는 위로 2px, 프로젝트 관리는 아래로 3px 조정
-            if text == "공정 관리":
+            # 공정 관리는 ?�로 2px, ?�로?�트 관리는 ?�래�?3px 조정
+            if text == "공정 관�?:
                 adjusted_rect = QRect(option.rect.x(), option.rect.y() - 2, option.rect.width(), option.rect.height())
             else:
                 adjusted_rect = QRect(option.rect.x(), option.rect.y() + 3, option.rect.width(), option.rect.height())
@@ -547,7 +535,7 @@ class CustomDelegate(QStyledItemDelegate):
     
     def sizeHint(self, option, index):
         text = index.data(Qt.DisplayRole)
-        if text in ["프로젝트 관리", "공정 관리"]:
+        if text in ["?�로?�트 관�?, "공정 관�?]:
             return QSize(option.rect.width(), 35)
         return super().sizeHint(option, index)
 
@@ -562,7 +550,7 @@ class ProcessDelegate(QStyledItemDelegate):
         combo.addItem("")
         combo.addItems(self.processes)
         combo.setEditable(True)
-        combo.setMaxVisibleItems(20)  # 모든 항목이 보이도록 증가
+        combo.setMaxVisibleItems(20)  # 모든 ??��??보이?�록 증�?
         
         combo.setStyleSheet("""
             QComboBox QAbstractItemView {
@@ -638,7 +626,7 @@ class ManagementDialog(QDialog):
         
         for text, action, style in button_configs:
             btn = QPushButton(text)
-            btn.setStyleSheet(delete_style if "삭제" in text else button_style)
+            btn.setStyleSheet(delete_style if "??��" in text else button_style)
             btn.clicked.connect(lambda checked, a=action: self.handle_action(a))
             layout.addWidget(btn)
         
@@ -657,40 +645,40 @@ class ProjectManagementDialog(ManagementDialog):
         self.new_name = None
         
         button_configs = [
-            ("새 프로젝트 추가", self.add_project, None),
-            ("프로젝트 이름 변경", self.rename_project, None),
-            ("프로젝트 삭제", self.delete_project, None)
+            ("???�로?�트 추�?", self.add_project, None),
+            ("?�로?�트 ?�름 변�?, self.rename_project, None),
+            ("?�로?�트 ??��", self.delete_project, None)
         ]
         
-        super().__init__("프로젝트 관리", button_configs, parent)
+        super().__init__("?�로?�트 관�?, button_configs, parent)
     
     def add_project(self):
         dialog = QDialog(self)
-        dialog.setWindowTitle('새 프로젝트')
+        dialog.setWindowTitle('???�로?�트')
         dialog.resize(400, 250)
         
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
         
-        # 프로젝트명 입력
-        project_label = QLabel("프로젝트명:")
+        # ?�로?�트�??�력
+        project_label = QLabel("?�로?�트�?")
         project_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(project_label)
         
         project_input = QLineEdit()
         project_input.setMinimumHeight(35)
-        project_input.setPlaceholderText("예: 여의도 파크자이")
+        project_input.setPlaceholderText("?? ?�의???�크?�이")
         layout.addWidget(project_input)
         
-        # 동 호수 입력
-        unit_label = QLabel("동 호수:")
+        # ???�수 ?�력
+        unit_label = QLabel("???�수:")
         unit_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(unit_label)
         
         unit_input = QLineEdit()
         unit_input.setMinimumHeight(35)
-        unit_input.setPlaceholderText("예: 101동 1003호")
+        unit_input.setPlaceholderText("?? 101??1003??)
         layout.addWidget(unit_input)
         
         # 버튼
@@ -700,7 +688,7 @@ class ProjectManagementDialog(ManagementDialog):
         cancel_btn.setStyleSheet(BUTTON_STYLE.replace("#7d9471", "#6c757d"))
         cancel_btn.clicked.connect(dialog.reject)
         
-        ok_btn = QPushButton("확인")
+        ok_btn = QPushButton("?�인")
         ok_btn.setStyleSheet(BUTTON_STYLE)
         ok_btn.clicked.connect(dialog.accept)
         
@@ -715,13 +703,12 @@ class ProjectManagementDialog(ManagementDialog):
             unit_info = unit_input.text().strip()
             
             if project_name:
-                # 프로젝트명과 동 호수를 | 로 구분하여 저장
-                full_name = project_name
+                # ?�로?�트명과 ???�수�?| �?구분?�여 ?�??                full_name = project_name
                 if unit_info:
                     full_name = f"{project_name} | {unit_info}"
                 
                 if full_name in self.projects_data:
-                    QMessageBox.warning(self, "경고", "이미 존재하는 프로젝트입니다.")
+                    QMessageBox.warning(self, "경고", "?��? 존재?�는 ?�로?�트?�니??")
                     return
                 
                 self.selected_project = full_name
@@ -730,13 +717,13 @@ class ProjectManagementDialog(ManagementDialog):
     
     def rename_project(self):
         if not self.projects_data:
-            QMessageBox.warning(self, "경고", "이름을 변경할 프로젝트가 없습니다.")
+            QMessageBox.warning(self, "경고", "?�름??변경할 ?�로?�트가 ?�습?�다.")
             return
         
-        # 프로젝트 선택
+        # ?�로?�트 ?�택
         dialog1 = QInputDialog(self)
-        dialog1.setWindowTitle('프로젝트 선택')
-        dialog1.setLabelText('이름을 변경할 프로젝트를 선택하세요:')
+        dialog1.setWindowTitle('?�로?�트 ?�택')
+        dialog1.setLabelText('?�름??변경할 ?�로?�트�??�택?�세??')
         dialog1.setComboBoxItems(sorted(self.projects_data.keys()))
         dialog1.setInputMode(QInputDialog.TextInput)
         dialog1.setOption(QInputDialog.UseListViewForComboBoxItems)
@@ -747,7 +734,7 @@ class ProjectManagementDialog(ManagementDialog):
         
         old_full_name = dialog1.textValue()
         
-        # 기존 프로젝트명과 동 호수 분리
+        # 기존 ?�로?�트명과 ???�수 분리
         old_project = old_full_name
         old_unit = ""
         if " | " in old_full_name:
@@ -755,17 +742,17 @@ class ProjectManagementDialog(ManagementDialog):
             old_project = parts[0]
             old_unit = parts[1] if len(parts) > 1 else ""
         
-        # 새 프로젝트명과 동 호수 입력
+        # ???�로?�트명과 ???�수 ?�력
         dialog2 = QDialog(self)
-        dialog2.setWindowTitle('프로젝트 이름 변경')
+        dialog2.setWindowTitle('?�로?�트 ?�름 변�?)
         dialog2.resize(400, 250)
         
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
         
-        # 프로젝트명 입력
-        project_label = QLabel("프로젝트명:")
+        # ?�로?�트�??�력
+        project_label = QLabel("?�로?�트�?")
         project_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(project_label)
         
@@ -773,8 +760,8 @@ class ProjectManagementDialog(ManagementDialog):
         project_input.setMinimumHeight(35)
         layout.addWidget(project_input)
         
-        # 동 호수 입력
-        unit_label = QLabel("동 호수:")
+        # ???�수 ?�력
+        unit_label = QLabel("???�수:")
         unit_label.setStyleSheet("font-weight: bold;")
         layout.addWidget(unit_label)
         
@@ -789,7 +776,7 @@ class ProjectManagementDialog(ManagementDialog):
         cancel_btn.setStyleSheet(BUTTON_STYLE.replace("#7d9471", "#6c757d"))
         cancel_btn.clicked.connect(dialog2.reject)
         
-        ok_btn = QPushButton("확인")
+        ok_btn = QPushButton("?�인")
         ok_btn.setStyleSheet(BUTTON_STYLE)
         ok_btn.clicked.connect(dialog2.accept)
         
@@ -804,14 +791,13 @@ class ProjectManagementDialog(ManagementDialog):
             new_unit = unit_input.text().strip()
             
             if new_project:
-                # 새 프로젝트명과 동 호수를 | 로 구분하여 저장
-                new_full_name = new_project
+                # ???�로?�트명과 ???�수�?| �?구분?�여 ?�??                new_full_name = new_project
                 if new_unit:
                     new_full_name = f"{new_project} | {new_unit}"
                 
                 if new_full_name != old_full_name:
                     if new_full_name in self.projects_data:
-                        QMessageBox.warning(self, "경고", "이미 존재하는 프로젝트입니다.")
+                        QMessageBox.warning(self, "경고", "?��? 존재?�는 ?�로?�트?�니??")
                         return
                     
                     self.selected_project = old_full_name
@@ -821,13 +807,12 @@ class ProjectManagementDialog(ManagementDialog):
     
     def delete_project(self):
         if not self.projects_data:
-            QMessageBox.warning(self, "경고", "삭제할 프로젝트가 없습니다.")
+            QMessageBox.warning(self, "경고", "??��???�로?�트가 ?�습?�다.")
             return
         
-        # 프로젝트 선택 다이얼로그
-        dialog1 = QInputDialog(self)
-        dialog1.setWindowTitle('프로젝트 선택')
-        dialog1.setLabelText('삭제할 프로젝트를 선택하세요:')
+        # ?�로?�트 ?�택 ?�이?�로�?        dialog1 = QInputDialog(self)
+        dialog1.setWindowTitle('?�로?�트 ?�택')
+        dialog1.setLabelText('??��???�로?�트�??�택?�세??')
         dialog1.setComboBoxItems(sorted(self.projects_data.keys()))
         dialog1.setInputMode(QInputDialog.TextInput)
         dialog1.setOption(QInputDialog.UseListViewForComboBoxItems)
@@ -838,10 +823,9 @@ class ProjectManagementDialog(ManagementDialog):
         
         project = dialog1.textValue()
         
-        # 비밀번호 입력 다이얼로그
-        dialog2 = QInputDialog(self)
-        dialog2.setWindowTitle('프로젝트 삭제 확인')
-        dialog2.setLabelText(f'"{project}" 프로젝트를 삭제하려면 비밀번호를 입력하세요:')
+        # 비�?번호 ?�력 ?�이?�로�?        dialog2 = QInputDialog(self)
+        dialog2.setWindowTitle('?�로?�트 ??�� ?�인')
+        dialog2.setLabelText(f'"{project}" ?�로?�트�???��?�려�?비�?번호�??�력?�세??')
         dialog2.setInputMode(QInputDialog.TextInput)
         dialog2.setTextEchoMode(QLineEdit.Password)
         dialog2.resize(400, 200)
@@ -852,10 +836,10 @@ class ProjectManagementDialog(ManagementDialog):
         password = dialog2.textValue()
         
         if password != "0109":
-            QMessageBox.critical(self, "오류", "비밀번호가 올바르지 않습니다.")
+            QMessageBox.critical(self, "?�류", "비�?번호가 ?�바르�? ?�습?�다.")
             return
         
-        reply = QMessageBox.question(self, "확인", f'프로젝트 "{project}"를 삭제하시겠습니까?\n모든 데이터가 사라집니다.',
+        reply = QMessageBox.question(self, "?�인", f'?�로?�트 "{project}"�???��?�시겠습?�까?\n모든 ?�이?��? ?�라집니??',
                                     QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.selected_project = project
@@ -868,25 +852,25 @@ class ProcessManagementDialog(ManagementDialog):
         self.result_processes = None
         
         button_configs = [
-            ("새 공정 추가", self.add_process, None),
-            ("공정 순서 변경", self.change_order, None),
-            ("공정 삭제", self.delete_process, None)
+            ("??공정 추�?", self.add_process, None),
+            ("공정 ?�서 변�?, self.change_order, None),
+            ("공정 ??��", self.delete_process, None)
         ]
         
-        # 버튼 활성화 상태 설정
+        # 버튼 ?�성???�태 ?�정
         for i, (text, action, style) in enumerate(button_configs):
-            if "순서" in text and len(self.processes) <= 1:
+            if "?�서" in text and len(self.processes) <= 1:
                 button_configs[i] = (text, lambda: None, None)
-            elif "삭제" in text and len(self.processes) == 0:
+            elif "??��" in text and len(self.processes) == 0:
                 button_configs[i] = (text, lambda: None, None)
         
-        super().__init__("공정 관리", button_configs, parent)
+        super().__init__("공정 관�?, button_configs, parent)
     
     def add_process(self):
-        process_name, ok = QInputDialog.getText(self, '새 공정', '공정명을 입력하세요:')
+        process_name, ok = QInputDialog.getText(self, '??공정', '공정명을 ?�력?�세??')
         if ok and process_name.strip():
             if process_name.strip() in self.processes:
-                QMessageBox.warning(self, "경고", "이미 존재하는 공정명입니다.")
+                QMessageBox.warning(self, "경고", "?��? 존재?�는 공정명입?�다.")
                 return
             self.processes.append(process_name.strip())
             self.result_processes = self.processes
@@ -901,12 +885,12 @@ class ProcessManagementDialog(ManagementDialog):
     
     def delete_process(self):
         if not self.processes:
-            QMessageBox.warning(self, "경고", "삭제할 공정이 없습니다.")
+            QMessageBox.warning(self, "경고", "??��??공정???�습?�다.")
             return
         
-        process, ok = QInputDialog.getItem(self, '공정 선택', '삭제할 공정을 선택하세요:', self.processes, 0, False)
+        process, ok = QInputDialog.getItem(self, '공정 ?�택', '??��??공정???�택?�세??', self.processes, 0, False)
         if ok:
-            reply = QMessageBox.question(self, "확인", f'공정 "{process}"를 삭제하시겠습니까?\n기존 데이터의 공정명은 유지됩니다.',
+            reply = QMessageBox.question(self, "?�인", f'공정 "{process}"�???��?�시겠습?�까?\n기존 ?�이?�의 공정명�? ?��??�니??',
                                         QMessageBox.Yes | QMessageBox.No)
             if reply == QMessageBox.Yes:
                 self.processes.remove(process)
@@ -918,7 +902,7 @@ class ProcessOrderDialog(QDialog):
     def __init__(self, processes, parent=None):
         super().__init__(parent)
         self.processes = processes.copy()
-        self.setWindowTitle("공정 순서 변경")
+        self.setWindowTitle("공정 ?�서 변�?)
         self.setModal(True)
         self.setFixedSize(400, 500)
         self.init_ui()
@@ -929,7 +913,7 @@ class ProcessOrderDialog(QDialog):
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 20, 20, 20)
         
-        info_label = QLabel("드래그하여 순서를 변경하세요")
+        info_label = QLabel("?�래그하???�서�?변경하?�요")
         info_label.setStyleSheet("font-size: 14px; color: #495057; padding: 10px;")
         info_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(info_label)
@@ -946,7 +930,7 @@ class ProcessOrderDialog(QDialog):
         cancel_btn.setStyleSheet(BUTTON_STYLE.replace("#7d9471", "#6c757d"))
         cancel_btn.clicked.connect(self.reject)
         
-        confirm_btn = QPushButton("확인")
+        confirm_btn = QPushButton("?�인")
         confirm_btn.setStyleSheet(BUTTON_STYLE)
         confirm_btn.clicked.connect(self.accept)
         
@@ -965,7 +949,7 @@ class ProcessSummaryDialog(QDialog):
         super().__init__(parent)
         self.project_data = project_data
         self.processes = processes
-        self.setWindowTitle("공정별 금액 요약")
+        self.setWindowTitle("공정�?금액 ?�약")
         self.setModal(True)
         self.resize(800, 850)
         self.init_ui()
@@ -975,7 +959,7 @@ class ProcessSummaryDialog(QDialog):
         
         self.table = QTableWidget()
         self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(["공정", "자재비", "인건비", "부가세", "총액"])
+        self.table.setHorizontalHeaderLabels(["공정", "?�재�?, "?�건�?, "부가??, "총액"])
         
         header = self.table.horizontalHeader()
         header.setStretchLastSection(True)
@@ -1000,8 +984,8 @@ class ProcessSummaryDialog(QDialog):
         layout.addLayout(total_layout)
         
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        button_box.button(QDialogButtonBox.Ok).setText("확인")
-        button_box.button(QDialogButtonBox.Cancel).setText("Excel 내보내기")
+        button_box.button(QDialogButtonBox.Ok).setText("?�인")
+        button_box.button(QDialogButtonBox.Cancel).setText("Excel ?�보?�기")
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.export_to_excel)
         
@@ -1014,7 +998,7 @@ class ProcessSummaryDialog(QDialog):
         process_totals = {process: {'material': 0, 'labor': 0, 'vat': 0, 'total': 0} for process in self.processes}
         
         for item in self.project_data:
-            process = item.get('process', '기타') or '기타'
+            process = item.get('process', '기�?') or '기�?'
             if process not in process_totals:
                 process_totals[process] = {'material': 0, 'labor': 0, 'vat': 0, 'total': 0}
             
@@ -1035,10 +1019,10 @@ class ProcessSummaryDialog(QDialog):
         
         self.table.setRowCount(row_count)
         
-        total_text = f"전체 합계: 자재비 {grand_totals['material']:,}원, "
-        total_text += f"인건비 {grand_totals['labor']:,}원, "
-        total_text += f"부가세 {grand_totals['vat']:,}원, "
-        total_text += f"총액 {grand_totals['total']:,}원"
+        total_text = f"?�체 ?�계: ?�재�?{grand_totals['material']:,}?? "
+        total_text += f"?�건�?{grand_totals['labor']:,}?? "
+        total_text += f"부가??{grand_totals['vat']:,}?? "
+        total_text += f"총액 {grand_totals['total']:,}??
         self.total_label.setText(total_text)
         
     def add_row(self, row, process, totals):
@@ -1046,10 +1030,10 @@ class ProcessSummaryDialog(QDialog):
         
         items = [
             (process, Qt.AlignCenter, None),
-            (f"{totals['material']:,}원", Qt.AlignRight | Qt.AlignVCenter, None),
-            (f"{totals['labor']:,}원", Qt.AlignRight | Qt.AlignVCenter, None),
-            (f"{totals['vat']:,}원", Qt.AlignRight | Qt.AlignVCenter, None),
-            (f"{totals['total']:,}원", Qt.AlignRight | Qt.AlignVCenter, QFont("맑은 고딕", 9, QFont.Bold))
+            (f"{totals['material']:,}??, Qt.AlignRight | Qt.AlignVCenter, None),
+            (f"{totals['labor']:,}??, Qt.AlignRight | Qt.AlignVCenter, None),
+            (f"{totals['vat']:,}??, Qt.AlignRight | Qt.AlignVCenter, None),
+            (f"{totals['total']:,}??, Qt.AlignRight | Qt.AlignVCenter, QFont("맑�? 고딕", 9, QFont.Bold))
         ]
         
         for col, (text, alignment, font) in enumerate(items):
@@ -1061,7 +1045,7 @@ class ProcessSummaryDialog(QDialog):
         
     def export_to_excel(self):
         try:
-            filename, _ = QFileDialog.getSaveFileName(self, "공정별 금액 Excel 저장", "공정별_금액_요약.xlsx", "Excel files (*.xlsx)")
+            filename, _ = QFileDialog.getSaveFileName(self, "공정�?금액 Excel ?�??, "공정�?금액_?�약.xlsx", "Excel files (*.xlsx)")
             if not filename:
                 return
             
@@ -1072,15 +1056,15 @@ class ProcessSummaryDialog(QDialog):
                     item = self.table.item(row, col)
                     if item:
                         header = self.table.horizontalHeaderItem(col).text()
-                        text = item.text().replace(',', '').replace('원', '').strip()
+                        text = item.text().replace(',', '').replace('??, '').strip()
                         row_data[header] = text if col == 0 else int(text) if text else 0
                 data.append(row_data)
             
             pd.DataFrame(data).to_excel(filename, index=False)
-            QMessageBox.information(self, "성공", f"공정별 금액이 Excel 파일로 저장되었습니다.\n{filename}")
+            QMessageBox.information(self, "?�공", f"공정�?금액??Excel ?�일�??�?�되?�습?�다.\n{filename}")
             
         except Exception as e:
-            QMessageBox.critical(self, "오류", f"Excel 파일 저장 중 오류가 발생했습니다:\n{str(e)}")
+            QMessageBox.critical(self, "?�류", f"Excel ?�일 ?�??�??�류가 발생?�습?�다:\n{str(e)}")
 
 
 class CustomTableWidget(QTableWidget):
@@ -1112,7 +1096,7 @@ class CustomTableWidget(QTableWidget):
                     row = item.row()
                     memo = self.item_name_delegate.main_window.get_memo_for_row(row)
                     has_memo = self._check_has_memo(memo)
-                    QToolTip.showText(event.globalPos(), "클릭: 메모 보기/편집\n우클릭: 메모 삭제" if has_memo else "클릭하여 메모 추가")
+                    QToolTip.showText(event.globalPos(), "?�릭: 메모 보기/?�집\n?�클�? 메모 ??��" if has_memo else "?�릭?�여 메모 추�?")
             else:
                 QToolTip.hideText()
         else:
@@ -1161,7 +1145,7 @@ class ItemNameDelegate(QStyledItemDelegate):
         if self.main_window:
             memo = self.main_window.get_memo_for_row(row)
             has_memo = self._check_has_memo(memo)
-            # 현재 행이 선택되어 있고 메모가 실제로 있을 때만 active 상태로 표시
+            # ?�재 ?�이 ?�택?�어 ?�고 메모가 ?�제�??�을 ?�만 active ?�태�??�시
             is_active_memo = self.main_window.memo_visible and self.main_window.current_memo_row == row and has_memo
         
         super().paint(painter, option, index)
@@ -1225,7 +1209,7 @@ class ItemNameDelegate(QStyledItemDelegate):
                 
                 if has_memo:
                     menu = QMenu()
-                    delete_action = menu.addAction("메모 삭제")
+                    delete_action = menu.addAction("메모 ??��")
                     if menu.exec_(event.globalPos()) == delete_action:
                         self.memo_delete_requested.emit(row)
                 
@@ -1289,7 +1273,7 @@ class ImageTextEdit(QTextEdit):
                 break
         
         self.viewport().setCursor(Qt.PointingHandCursor if is_on_image else Qt.IBeamCursor)
-        QToolTip.showText(event.globalPos(), "클릭하여 이미지 보기") if is_on_image else QToolTip.hideText()
+        QToolTip.showText(event.globalPos(), "?�릭?�여 ?��?지 보기") if is_on_image else QToolTip.hideText()
         
         super().mouseMoveEvent(event)
     
@@ -1422,7 +1406,7 @@ class ImageViewer(QDialog):
         self.center_on_screen()
         
     def init_ui(self):
-        self.setWindowTitle("이미지 보기")
+        self.setWindowTitle("?��?지 보기")
         self.setWindowFlags(Qt.Window | Qt.WindowCloseButtonHint | Qt.WindowMaximizeButtonHint)
         
         screen = QApplication.primaryScreen().geometry()
@@ -1471,9 +1455,9 @@ class ImageViewer(QDialog):
         
         buttons = [
             ("축소 (-)", self.zoom_out),
-            ("확대 (+)", self.zoom_in),
-            ("창에 맞추기", self.zoom_fit),
-            ("원본 크기 (1:1)", self.zoom_original)
+            ("?��? (+)", self.zoom_in),
+            ("창에 맞추�?, self.zoom_fit),
+            ("?�본 ?�기 (1:1)", self.zoom_original)
         ]
         
         for text, func in buttons:
@@ -1485,7 +1469,7 @@ class ImageViewer(QDialog):
         button_layout.addWidget(self.zoom_label)
         button_layout.addStretch()
         
-        close_btn = QPushButton("닫기")
+        close_btn = QPushButton("?�기")
         close_btn.setStyleSheet(BUTTON_STYLE)
         close_btn.clicked.connect(self.accept)
         button_layout.addWidget(close_btn)
@@ -1544,13 +1528,13 @@ class InteriorSettlementApp(QMainWindow):
         self.user_email = user_email
         self.projects_data = {}
         self.current_project = None
-        self.users = ["상준", "신애", "재천", "민기", "재성"]
+        self.users = ["?��?", "?�애", "?�천", "민기", "?�성"]
         self.current_user = None
         self.sort_column = -1
         self.sort_order = Qt.AscendingOrder
         self.undo_stack = []
         self.max_undo_stack = 20
-        self.processes = ["가설", "철거", "설비/미장", "전기", "목공", "조명", "가구", "바닥", "타일", "욕실", "필름", "도배", "도장", "창호", "기타"]
+        self.processes = ["가??, "철거", "?�비/미장", "?�기", "목공", "조명", "가�?, "바닥", "?�??, "?�실", "?�름", "?�배", "?�장", "창호", "기�?"]
         self.memo_visible = True
         self.current_memo_row = -1
         self.original_window_size = QSize(1650, 1100)
@@ -1558,29 +1542,28 @@ class InteriorSettlementApp(QMainWindow):
         self.firebase_sync = None
         self.is_updating = False
         
-        # 업데이트 체커 초기화
-        self.update_checker = UpdateChecker(self)
+        # ?�데?�트 체커 초기??        self.update_checker = UpdateChecker(self)
         self.update_checker.update_available.connect(self.show_update_dialog)
         
         self.init_ui()
         self.load_all_data()
         self.setup_firebase_sync()
         
-        # 업데이트 관련 파일 정리
+        # ?�데?�트 관???�일 ?�리
         self.cleanup_update_files()
         
-        # 프로그램 시작 시 업데이트 확인
+        # ?�로그램 ?�작 ???�데?�트 ?�인
         QTimer.singleShot(3000, self.background_update_check)
         
         if hasattr(self, 'user_guide_label') and not self.current_user:
             self.user_guide_label.setVisible(True)
 
     def cleanup_update_files(self):
-        """업데이트 관련 파일 정리"""
+        """?�데?�트 관???�일 ?�리"""
         try:
             exe_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else os.path.abspath(__file__))
             
-            # 삭제할 파일 목록
+            # ??��???�일 목록
             cleanup_files = [
                 'update.bat',
                 'update_silent.vbs',
@@ -1607,7 +1590,7 @@ class InteriorSettlementApp(QMainWindow):
         
         if not USE_FIREBASE_SYNC:
             if hasattr(self, 'sync_status_label'):
-                self.sync_status_label.setText("●")
+                self.sync_status_label.setText("??)
                 self.sync_status_label.setStyleSheet("color: #6c757d; font-size: 9px; font-weight: bold; padding: 0px; background-color: transparent; border: none; min-width: 10px; max-width: 10px;")
                 self.sync_status_label.setToolTip("로컬 모드")
             return
@@ -1617,9 +1600,9 @@ class InteriorSettlementApp(QMainWindow):
             QTimer.singleShot(1000, self.firebase_sync.start_sync)
         except:
             if hasattr(self, 'sync_status_label'):
-                self.sync_status_label.setText("●")
+                self.sync_status_label.setText("??)
                 self.sync_status_label.setStyleSheet("color: #95a5a6; font-size: 9px; font-weight: bold; padding: 0px; background-color: transparent; border: none; min-width: 10px; max-width: 10px;")
-                self.sync_status_label.setToolTip("오프라인 모드")
+                self.sync_status_label.setToolTip("?�프?�인 모드")
 
     def on_firebase_data_changed(self, data):
         if self.is_updating:
@@ -1664,15 +1647,15 @@ class InteriorSettlementApp(QMainWindow):
                 self.memo_text_edit.clear()
             
             if hasattr(self, 'sync_status_label'):
-                self.sync_status_label.setText("●")
+                self.sync_status_label.setText("??)
                 self.sync_status_label.setStyleSheet("color: #27ae60; font-size: 9px; font-weight: bold; padding: 0px; background-color: transparent; border: none; min-width: 10px; max-width: 10px;")
-                self.sync_status_label.setToolTip("동기화됨")
+                self.sync_status_label.setToolTip("?�기?�됨")
             
         finally:
             self.is_updating = False
 
     def init_ui(self):
-        self.setWindowTitle(f"정산 프로그램 © HV LAB (v{CURRENT_VERSION})")
+        self.setWindowTitle(f"?�산 ?�로그램 © HV LAB (v{CURRENT_VERSION})")
         self.setWindowIcon(QIcon(resource_path('HV.ico')))
         
         screen = QApplication.primaryScreen().geometry()
@@ -1683,12 +1666,12 @@ class InteriorSettlementApp(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(20, 20, 20, 20)  # 상하좌우 모두 20px로 통일
+        layout.setContentsMargins(20, 20, 20, 20)  # ?�하좌우 모두 20px�??�일
         
         self.apply_styles()
         
         main_content_layout = QHBoxLayout()
-        main_content_layout.setSpacing(5)  # 10에서 5로 줄여서 더 균일하게
+        main_content_layout.setSpacing(5)  # 10?�서 5�?줄여????균일?�게
         main_content_layout.setContentsMargins(0, 0, 0, 0)
         
         left_panel = self.create_left_panel()
@@ -1713,31 +1696,30 @@ class InteriorSettlementApp(QMainWindow):
         self.update_ui_state()
 
     def create_left_panel(self):
-        """왼쪽 패널 생성 - 프로젝트, 사용자, 입력, 요약 섹션을 포함"""
+        """?�쪽 ?�널 ?�성 - ?�로?�트, ?�용?? ?�력, ?�약 ?�션???�함"""
         left_panel = QWidget()
         left_panel.setFixedWidth(LEFT_PANEL_WIDTH)
         left_layout = QVBoxLayout()
-        left_layout.setContentsMargins(0, 0, 10, 10)  # 하단 여백 10으로 맞춤
+        left_layout.setContentsMargins(0, 0, 10, 10)  # ?�단 ?�백 10?�로 맞춤
         
-        # 프로젝트 섹션
+        # ?�로?�트 ?�션
         project_section = self.create_project_section()
         left_layout.addWidget(project_section)
         
-        # 동기화 상태 표시 제거 - 테이블 섹션으로 이동
+        # ?�기???�태 ?�시 ?�거 - ?�이�??�션?�로 ?�동
         left_layout.addSpacing(10)
         
-        # 사용자 선택 섹션
+        # ?�용???�택 ?�션
         user_section = self.create_user_section()
         left_layout.addWidget(user_section)
         
-        # 입력 섹션 - 그룹박스 없이
+        # ?�력 ?�션 - 그룹박스 ?�이
         input_section = self.create_input_section()
         left_layout.addWidget(input_section)
         
-        # 스트레치를 추가하여 요약 섹션을 아래로 밀기
-        left_layout.addStretch()
+        # ?�트?�치�?추�??�여 ?�약 ?�션???�래�?밀�?        left_layout.addStretch()
         
-        # 요약 섹션 - 그룹박스 없이
+        # ?�약 ?�션 - 그룹박스 ?�이
         summary_section = self.create_summary_section()
         left_layout.addWidget(summary_section)
         
@@ -1893,8 +1875,7 @@ class InteriorSettlementApp(QMainWindow):
         project_layout.setSpacing(0)
         
         self.project_combo = ProjectComboBox()
-        self.project_combo.setMinimumHeight(95)  # 100에서 95로 변경
-        self.project_combo.setMaximumHeight(95)  # 최대 높이도 95로 설정
+        self.project_combo.setMinimumHeight(95)  # 100?�서 95�?변�?        self.project_combo.setMaximumHeight(95)  # 최�? ?�이??95�??�정
         self.project_combo.setStyleSheet("""
             QComboBox { 
                 font-size: 14px; 
@@ -1938,7 +1919,7 @@ class InteriorSettlementApp(QMainWindow):
         return project_widget
     
     def on_project_combo_activated(self, index):
-        """프로젝트 콤보박스 선택 시 처리"""
+        """?�로?�트 콤보박스 ?�택 ??처리"""
         project_name = self.project_combo.currentText()
         self.on_project_changed(project_name)
     
@@ -1972,8 +1953,8 @@ class InteriorSettlementApp(QMainWindow):
         input_layout.setSpacing(8)
         input_layout.setContentsMargins(10, 10, 10, 10)
         
-        # 날짜
-        input_layout.addWidget(QLabel("날짜:"), 0, 0)
+        # ?�짜
+        input_layout.addWidget(QLabel("?�짜:"), 0, 0)
         self.date_edit = QDateEdit()
         self.date_edit.setDate(QDate.currentDate())
         self.date_edit.setCalendarPopup(True)
@@ -1989,10 +1970,10 @@ class InteriorSettlementApp(QMainWindow):
         self.process_combo = QComboBox()
         self.process_combo.addItem("")
         self.process_combo.addItems(self.processes)
-        self.process_combo.addItem("공정 관리")
+        self.process_combo.addItem("공정 관�?)
         self.process_combo.setMinimumHeight(35)
         self.process_combo.setEditable(True)
-        self.process_combo.setMaxVisibleItems(20)  # 모든 항목이 보이도록 증가
+        self.process_combo.setMaxVisibleItems(20)  # 모든 ??��??보이?�록 증�?
         
         self.process_combo.setStyleSheet("""
             QComboBox QAbstractItemView {
@@ -2025,35 +2006,31 @@ class InteriorSettlementApp(QMainWindow):
         self.process_combo.activated.connect(self.on_process_combo_activated)
         input_layout.addWidget(self.process_combo, 1, 1)
         
-        # 항목명
-        input_layout.addWidget(QLabel("항목명:"), 2, 0)
+        # ??���?        input_layout.addWidget(QLabel("??���?"), 2, 0)
         self.item_name = QLineEdit()
         self.item_name.setMinimumHeight(35)
         self.item_name.returnPressed.connect(self.add_item)
         input_layout.addWidget(self.item_name, 2, 1)
         
-        # 자재비
-        input_layout.addWidget(QLabel("자재비:"), 3, 0)
+        # ?�재�?        input_layout.addWidget(QLabel("?�재�?"), 3, 0)
         self.material_amount = self.create_amount_spinbox()
         input_layout.addWidget(self.material_amount, 3, 1)
         
-        # 인건비
-        input_layout.addWidget(QLabel("인건비:"), 4, 0)
+        # ?�건�?        input_layout.addWidget(QLabel("?�건�?"), 4, 0)
         self.labor_amount = self.create_amount_spinbox()
         input_layout.addWidget(self.labor_amount, 4, 1)
         
-        # 부가세
-        vat_container = QWidget()
+        # 부가??        vat_container = QWidget()
         vat_layout = QHBoxLayout()
         vat_layout.setContentsMargins(0, 0, 0, 15)
         vat_layout.addStretch()
-        self.vat_included = QCheckBox("부가세 포함")
+        self.vat_included = QCheckBox("부가???�함")
         vat_layout.addWidget(self.vat_included)
         vat_container.setLayout(vat_layout)
         input_layout.addWidget(vat_container, 5, 0, 1, 2)
         
-        # 추가 버튼
-        self.add_item_btn = QPushButton("항목 추가")
+        # 추�? 버튼
+        self.add_item_btn = QPushButton("??�� 추�?")
         self.add_item_btn.setStyleSheet(BUTTON_STYLE)
         self.add_item_btn.clicked.connect(self.add_item)
         self.add_item_btn.setMinimumHeight(40)
@@ -2062,8 +2039,8 @@ class InteriorSettlementApp(QMainWindow):
         self.add_item_btn.setMouseTracking(True)
         self.add_item_btn.enterEvent = self.on_add_button_hover
         
-        # 사용자 안내
-        self.user_guide_label = QLabel("※ 작성자 이름을 선택하세요")
+        # ?�용???�내
+        self.user_guide_label = QLabel("???�성???�름???�택?�세??)
         self.user_guide_label.setStyleSheet("""
             QLabel {
                 color: #B57575;
@@ -2080,7 +2057,7 @@ class InteriorSettlementApp(QMainWindow):
     
     def on_process_combo_activated(self, index):
         process_name = self.process_combo.currentText()
-        if process_name == "공정 관리":
+        if process_name == "공정 관�?:
             self.show_process_management_dialog()
             
             if hasattr(self, '_last_process_selection'):
@@ -2113,15 +2090,15 @@ class InteriorSettlementApp(QMainWindow):
                     self.save_all_data()
                     
                     action_messages = {
-                        'add': "새 공정이 추가되었습니다.",
-                        'reorder': "공정 순서가 변경되었습니다.",
-                        'delete': "공정이 삭제되었습니다."
+                        'add': "??공정??추�??�었?�니??",
+                        'reorder': "공정 ?�서가 변경되?�습?�다.",
+                        'delete': "공정????��?�었?�니??"
                     }
                     if dialog.selected_action in action_messages:
-                        QMessageBox.information(self, "성공", action_messages[dialog.selected_action])
+                        QMessageBox.information(self, "?�공", action_messages[dialog.selected_action])
                         
         except Exception as e:
-            QMessageBox.critical(self, "오류", f"공정 관리 다이얼로그를 열 수 없습니다:\n{str(e)}")
+            QMessageBox.critical(self, "?�류", f"공정 관�??�이?�로그�? ?????�습?�다:\n{str(e)}")
     
     def update_process_combo(self):
         current_selection = self.process_combo.currentText()
@@ -2129,9 +2106,9 @@ class InteriorSettlementApp(QMainWindow):
         self.process_combo.clear()
         self.process_combo.addItem("")
         self.process_combo.addItems(self.processes)
-        self.process_combo.addItem("공정 관리")
+        self.process_combo.addItem("공정 관�?)
         
-        if current_selection and current_selection != "공정 관리":
+        if current_selection and current_selection != "공정 관�?:
             if current_selection in self.processes:
                 self.process_combo.setCurrentText(current_selection)
             else:
@@ -2140,7 +2117,7 @@ class InteriorSettlementApp(QMainWindow):
     def create_amount_spinbox(self):
         spinbox = QSpinBox()
         spinbox.setRange(0, 99999999)
-        spinbox.setSuffix(" 원")
+        spinbox.setSuffix(" ??)
         spinbox.setMinimumHeight(35)
         spinbox.setButtonSymbols(QSpinBox.NoButtons)
         spinbox.setKeyboardTracking(False)
@@ -2151,26 +2128,26 @@ class InteriorSettlementApp(QMainWindow):
     def create_summary_section(self):
         summary_widget = QWidget()
         summary_layout = QGridLayout()
-        summary_layout.setSpacing(10)  # 12에서 10으로 줄여서 80% 간격
-        summary_layout.setContentsMargins(10, -5, 10, 0)  # 상단 여백을 -5로 설정하여 5px 위로 이동
+        summary_layout.setSpacing(10)  # 12?�서 10?�로 줄여??80% 간격
+        summary_layout.setContentsMargins(10, -5, 10, 0)  # ?�단 ?�백??-5�??�정?�여 5px ?�로 ?�동
         
         labels = [
-            ("자재비 총합:", 0, 0),
-            ("인건비 총합:", 1, 0),
-            ("부가세 총합:", 2, 0),
-            ("총 합계:", 3, 0)
+            ("?�재�?총합:", 0, 0),
+            ("?�건�?총합:", 1, 0),
+            ("부가??총합:", 2, 0),
+            ("�??�계:", 3, 0)
         ]
         
         for text, row, col in labels:
             label = QLabel(text)
-            if "총 합계" in text:
+            if "�??�계" in text:
                 label.setStyleSheet("font-size: 24px; font-weight: bold;")
             summary_layout.addWidget(label, row, col)
         
-        self.material_total = QLabel("0원")
-        self.labor_total = QLabel("0원")
-        self.vat_total = QLabel("0원")
-        self.grand_total = QLabel("0원")
+        self.material_total = QLabel("0??)
+        self.labor_total = QLabel("0??)
+        self.vat_total = QLabel("0??)
+        self.grand_total = QLabel("0??)
         
         totals = [self.material_total, self.labor_total, self.vat_total, self.grand_total]
         
@@ -2190,7 +2167,7 @@ class InteriorSettlementApp(QMainWindow):
         memo_widget = QWidget()
         memo_widget.setFixedWidth(MEMO_WIDTH)
         memo_layout = QVBoxLayout()
-        memo_layout.setContentsMargins(10, 0, 0, 5)  # 하단 여백을 10에서 5로 줄임
+        memo_layout.setContentsMargins(10, 0, 0, 5)  # ?�단 ?�백??10?�서 5�?줄임
         
         memo_container = QWidget()
         memo_container.setStyleSheet("""
@@ -2202,7 +2179,7 @@ class InteriorSettlementApp(QMainWindow):
         """)
         
         container_layout = QVBoxLayout()
-        container_layout.setContentsMargins(20, 20, 20, 15)  # 하단 여백을 20에서 15로 줄임
+        container_layout.setContentsMargins(20, 20, 20, 15)  # ?�단 ?�백??20?�서 15�?줄임
         
         self.memo_text_edit = ImageTextEdit()
         self.memo_text_edit.setAcceptRichText(True)
@@ -2212,7 +2189,7 @@ class InteriorSettlementApp(QMainWindow):
         self.memo_text_edit.setStyleSheet("""
             QTextEdit {
                 border: none;
-                padding: 8px 8px 5px 8px;  /* 하단 패딩을 8에서 5로 줄임 */
+                padding: 8px 8px 5px 8px;  /* ?�단 ?�딩??8?�서 5�?줄임 */
                 background-color: white;
                 selection-background-color: #3399ff;
                 selection-color: white;
@@ -2220,7 +2197,7 @@ class InteriorSettlementApp(QMainWindow):
             QTextEdit::selection { background-color: #3399ff; }
         """)
         
-        font = QFont("맑은 고딕", 14)
+        font = QFont("맑�? 고딕", 14)
         self.memo_text_edit.setFont(font)
         self.memo_text_edit.textChanged.connect(self.on_memo_text_changed)
         self.memo_text_edit.setPlaceholderText("")
@@ -2245,7 +2222,7 @@ class InteriorSettlementApp(QMainWindow):
             
             self.memo_section.hide()
             self.memo_visible = False
-            self.memo_toggle_btn.setText("메모장 열기")
+            self.memo_toggle_btn.setText("메모???�기")
             
             current_pos = self.pos()
             self.setFixedSize(WINDOW_WIDTH_NO_MEMO, WINDOW_HEIGHT)
@@ -2253,7 +2230,7 @@ class InteriorSettlementApp(QMainWindow):
         else:
             self.memo_section.show()
             self.memo_visible = True
-            self.memo_toggle_btn.setText("메모장 닫기")
+            self.memo_toggle_btn.setText("메모???�기")
             current_pos = self.pos()
             self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
             self.move(current_pos)
@@ -2365,13 +2342,12 @@ class InteriorSettlementApp(QMainWindow):
         table_widget = QWidget()
         table_widget.setFixedWidth(TABLE_WIDTH)
         table_layout = QVBoxLayout()
-        table_layout.setContentsMargins(10, 0, 10, 10)  # 하단 여백 10으로 맞춤
+        table_layout.setContentsMargins(10, 0, 10, 10)  # ?�단 ?�백 10?�로 맞춤
         
         self.table = CustomTableWidget()
-        self.table.setMinimumHeight(610)  # 최소 높이를 600에서 610으로 설정
-        self.table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)  # 세로로 확장 가능
-        self.table.setColumnCount(8)
-        self.table.setHorizontalHeaderLabels(["작성자", "날짜", "공정", "항목명", "자재비", "인건비", "부가세", "총액"])
+        self.table.setMinimumHeight(610)  # 최소 ?�이�?600?�서 610?�로 ?�정
+        self.table.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)  # ?�로�??�장 가??        self.table.setColumnCount(8)
+        self.table.setHorizontalHeaderLabels(["?�성??, "?�짜", "공정", "??���?, "?�재�?, "?�건�?, "부가??, "총액"])
         
         self.setup_table_columns()
         
@@ -2400,17 +2376,17 @@ class InteriorSettlementApp(QMainWindow):
         self.table.item_name_delegate = self.item_name_delegate
         
         table_layout.addWidget(self.table)
-        table_layout.addSpacing(10)  # 20에서 10으로 줄임
+        table_layout.addSpacing(10)  # 20?�서 10?�로 줄임
         
         table_buttons_layout = QHBoxLayout()
         
         buttons = [
-            ("삭제 (Del)", self.delete_selected_item, BUTTON_STYLE),
-            ("뒤로 (Ctrl+Z)", self.undo_last_action, BUTTON_STYLE),
-            ("내보내기", self.export_to_excel, BUTTON_STYLE),
-            ("공정별 금액", self.show_process_summary, BUTTON_STYLE),
+            ("??�� (Del)", self.delete_selected_item, BUTTON_STYLE),
+            ("?�로 (Ctrl+Z)", self.undo_last_action, BUTTON_STYLE),
+            ("?�보?�기", self.export_to_excel, BUTTON_STYLE),
+            ("공정�?금액", self.show_process_summary, BUTTON_STYLE),
             ("백업", self.save_data_as, BUTTON_STYLE.replace("#7d9471", "#5d4e37").replace("#6d8062", "#4a3c2a").replace("#5d6f54", "#3d3023")),
-            ("업데이트 확인!", self.check_for_updates, BUTTON_STYLE)
+            ("?�데?�트 ?�인!", self.check_for_updates, BUTTON_STYLE)
         ]
         
         self.table_buttons = {}
@@ -2419,28 +2395,28 @@ class InteriorSettlementApp(QMainWindow):
             btn.setStyleSheet(style)
             btn.clicked.connect(func)
             if "백업" in text:
-                btn.setToolTip("현재 데이터를 별도 파일로 백업합니다")
-            elif "업데이트" in text:
-                btn.setToolTip("새로운 버전이 있는지 확인합니다")
+                btn.setToolTip("?�재 ?�이?��? 별도 ?�일�?백업?�니??)
+            elif "?�데?�트" in text:
+                btn.setToolTip("?�로??버전???�는지 ?�인?�니??)
             table_buttons_layout.addWidget(btn)
             
             key = text.split()[0]
-            if key == "삭제":
+            if key == "??��":
                 self.delete_item_btn = btn
-            elif key == "뒤로":
+            elif key == "?�로":
                 self.undo_btn = btn
-            elif key == "내보내기":
+            elif key == "?�보?�기":
                 self.export_btn = btn
-            elif key == "공정별":
+            elif key == "공정�?:
                 self.process_summary_btn = btn
             elif key == "백업":
                 self.save_btn = btn
-            elif key == "업데이트":  # "업데이트 확인!" 버튼
+            elif key == "?�데?�트":  # "?�데?�트 ?�인!" 버튼
                 self.update_btn = btn
                 
-                # 업데이트 버튼 바로 다음에 동기화 상태 추가
+                # ?�데?�트 버튼 바로 ?�음???�기???�태 추�?
                 table_buttons_layout.addSpacing(5)  # 간격 조정
-                self.sync_status_label = QLabel("●")
+                self.sync_status_label = QLabel("??)
                 self.sync_status_label.setAlignment(Qt.AlignCenter)
                 self.sync_status_label.setStyleSheet("""
                     QLabel {
@@ -2454,13 +2430,12 @@ class InteriorSettlementApp(QMainWindow):
                         max-width: 10px;
                     }
                 """)
-                self.sync_status_label.setFixedSize(10, 10)  # 고정 크기를 반으로
-                self.sync_status_label.setToolTip("실시간 동기화 중")
+                self.sync_status_label.setFixedSize(10, 10)  # 고정 ?�기�?반으�?                self.sync_status_label.setToolTip("?�시�??�기??�?)
                 table_buttons_layout.addWidget(self.sync_status_label)
         
         table_buttons_layout.addStretch()
         
-        self.memo_toggle_btn = QPushButton("메모장 닫기")
+        self.memo_toggle_btn = QPushButton("메모???�기")
         self.memo_toggle_btn.setStyleSheet(BUTTON_STYLE)
         self.memo_toggle_btn.clicked.connect(self.toggle_memo_section)
         table_buttons_layout.addWidget(self.memo_toggle_btn)
@@ -2471,12 +2446,12 @@ class InteriorSettlementApp(QMainWindow):
 
     def show_process_summary(self):
         if not self.current_project:
-            QMessageBox.warning(self, "경고", "프로젝트를 선택해주세요.")
+            QMessageBox.warning(self, "경고", "?�로?�트�??�택?�주?�요.")
             return
         
         data = self.get_current_data()
         if not data:
-            QMessageBox.warning(self, "경고", "표시할 데이터가 없습니다.")
+            QMessageBox.warning(self, "경고", "?�시???�이?��? ?�습?�다.")
             return
         
         dialog = ProcessSummaryDialog(data, self.processes, self)
@@ -2562,14 +2537,14 @@ class InteriorSettlementApp(QMainWindow):
 
     def select_number_part(self, spinbox):
         text = spinbox.lineEdit().text()
-        if " 원" in text:
-            spinbox.lineEdit().setSelection(0, text.find(" 원"))
+        if " ?? in text:
+            spinbox.lineEdit().setSelection(0, text.find(" ??))
         else:
             spinbox.lineEdit().selectAll()
 
     def on_add_button_hover(self, event):
         if not self.add_item_btn.isEnabled() and not self.current_user:
-            QToolTip.showText(QCursor.pos(), "작성자를 먼저 선택해주세요")
+            QToolTip.showText(QCursor.pos(), "?�성?��? 먼�? ?�택?�주?�요")
     
     def select_user(self, user):
         if self.current_user == user:
@@ -2692,7 +2667,7 @@ class InteriorSettlementApp(QMainWindow):
         item = {
             'user': self.current_user,
             'date': self.selected_date.toString('yyyy-MM-dd'),
-            'process': self.process_combo.currentText().strip() if self.process_combo.currentText().strip() != "공정 관리" else "",
+            'process': self.process_combo.currentText().strip() if self.process_combo.currentText().strip() != "공정 관�? else "",
             'name': self.item_name.text().strip() if self.item_name.text().strip() else "-",
             'material_amount': material_net,
             'labor_amount': labor_net,
@@ -2722,11 +2697,11 @@ class InteriorSettlementApp(QMainWindow):
 
     def validate_item_input(self):
         if not self.current_project:
-            QMessageBox.warning(self, "경고", "먼저 프로젝트를 선택하거나 추가해주세요.")
+            QMessageBox.warning(self, "경고", "먼�? ?�로?�트�??�택?�거??추�??�주?�요.")
             return False
         
         if not self.current_user:
-            QMessageBox.warning(self, "경고", "먼저 작성자를 선택해주세요.")
+            QMessageBox.warning(self, "경고", "먼�? ?�성?��? ?�택?�주?�요.")
             if hasattr(self, 'user_guide_label') and self.user_guide_label.isVisible():
                 original_style = self.user_guide_label.styleSheet()
                 self.user_guide_label.setStyleSheet("""
@@ -2767,14 +2742,14 @@ class InteriorSettlementApp(QMainWindow):
             reverse = (self.sort_order == Qt.DescendingOrder)
             data.sort(key=lambda item: self.get_sort_key(item, self.sort_column), reverse=reverse)
         
-        # 최적화: 행 수가 같으면 셀만 업데이트
+        # 최적?? ???��? 같으�??��??�데?�트
         current_row_count = self.table.rowCount()
         new_row_count = len(data)
         
         if current_row_count != new_row_count:
             self.table.setRowCount(new_row_count)
         
-        weekdays = ['월', '화', '수', '목', '금', '토', '일']
+        weekdays = ['??, '??, '??, '�?, '�?, '??, '??]
         
         for i, item in enumerate(data):
             cells = [
@@ -2785,11 +2760,11 @@ class InteriorSettlementApp(QMainWindow):
                 (self.format_amount(item.get('material_amount', 0)) + " ", Qt.AlignRight | Qt.AlignVCenter, Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable),
                 (self.format_amount(item.get('labor_amount', 0)) + " ", Qt.AlignRight | Qt.AlignVCenter, Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable),
                 (self.format_vat(item) + (" " if self.format_vat(item) else ""), Qt.AlignRight | Qt.AlignVCenter, Qt.NoItemFlags | Qt.ItemIsSelectable | Qt.ItemIsEnabled),
-                (f"{item.get('total_amount', 0):,}원 ", Qt.AlignRight | Qt.AlignVCenter, Qt.NoItemFlags | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                (f"{item.get('total_amount', 0):,}??", Qt.AlignRight | Qt.AlignVCenter, Qt.NoItemFlags | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
             ]
             
             for col, (text, alignment, flags) in enumerate(cells):
-                # 최적화: 기존 아이템이 있고 텍스트가 같으면 건너뛰기
+                # 최적?? 기존 ?�이?�이 ?�고 ?�스?��? 같으�?건너?�기
                 existing_item = self.table.item(i, col)
                 if existing_item and existing_item.text() == text:
                     continue
@@ -2818,11 +2793,11 @@ class InteriorSettlementApp(QMainWindow):
             return date_str
 
     def format_amount(self, amount):
-        return f"{amount:,}원" if amount > 0 else ""
+        return f"{amount:,}?? if amount > 0 else ""
 
     def format_vat(self, item):
         if item.get('vat_included', False) and item.get('vat_amount', 0) > 0:
-            return f"{item['vat_amount']:,}원"
+            return f"{item['vat_amount']:,}??
         return ""
 
     def get_sort_key(self, item, column):
@@ -2894,10 +2869,10 @@ class InteriorSettlementApp(QMainWindow):
             'grand': sum(item.get('total_amount', 0) for item in data)
         }
         
-        self.material_total.setText(f"{totals['material']:,}원")
-        self.labor_total.setText(f"{totals['labor']:,}원")
-        self.vat_total.setText(f"{totals['vat']:,}원")
-        self.grand_total.setText(f"{totals['grand']:,}원")
+        self.material_total.setText(f"{totals['material']:,}??)
+        self.labor_total.setText(f"{totals['labor']:,}??)
+        self.vat_total.setText(f"{totals['vat']:,}??)
+        self.grand_total.setText(f"{totals['grand']:,}??)
 
     def get_current_data(self):
         return self.projects_data.get(self.current_project, [])
@@ -2941,11 +2916,11 @@ class InteriorSettlementApp(QMainWindow):
             
             self.update_project_combo()
             self.project_combo.setCurrentText(new_name)
-            self.on_project_changed(new_name)  # ← 이 줄 추가
+            self.on_project_changed(new_name)  # ????�?추�?
             
             self.save_all_data()
             
-            QMessageBox.information(self, "성공", f"프로젝트 이름이 '{new_name}'으로 변경되었습니다.")
+            QMessageBox.information(self, "?�공", f"?�로?�트 ?�름??'{new_name}'?�로 변경되?�습?�다.")
 
     def show_project_management_dialog(self):
         try:
@@ -2985,13 +2960,13 @@ class InteriorSettlementApp(QMainWindow):
                     self.update_table()
                     self.update_summary()
                     self.update_ui_state()
-                    QMessageBox.information(self, "성공", f"프로젝트 '{dialog.selected_project}'가 삭제되었습니다.")
+                    QMessageBox.information(self, "?�공", f"?�로?�트 '{dialog.selected_project}'가 ??��?�었?�니??")
                     
         except Exception as e:
-            QMessageBox.critical(self, "오류", f"프로젝트 관리 다이얼로그를 열 수 없습니다:\n{str(e)}")
+            QMessageBox.critical(self, "?�류", f"?�로?�트 관�??�이?�로그�? ?????�습?�다:\n{str(e)}")
 
     def on_project_changed(self, project_name):
-        if project_name == "프로젝트 관리":
+        if project_name == "?�로?�트 관�?:
             self.show_project_management_dialog()
             
             if self.current_project and self.current_project in self.projects_data:
@@ -3008,7 +2983,7 @@ class InteriorSettlementApp(QMainWindow):
                     self.current_memo_row = -1
                     self.memo_text_edit.clear()
         else:
-            self.current_project = project_name if project_name and project_name != "프로젝트 관리" else None
+            self.current_project = project_name if project_name and project_name != "?�로?�트 관�? else None
             if self.current_project:
                 self.current_user = None
                 for btn in self.user_buttons:
@@ -3045,7 +3020,7 @@ class InteriorSettlementApp(QMainWindow):
             for project_name in sorted(self.projects_data.keys()):
                 self.project_combo.addItem(project_name)
         
-        self.project_combo.addItem("프로젝트 관리")
+        self.project_combo.addItem("?�로?�트 관�?)
         
         if current and current in self.projects_data:
             self.project_combo.setCurrentText(current)
@@ -3055,18 +3030,18 @@ class InteriorSettlementApp(QMainWindow):
 
     def export_to_excel(self):
         if not self.current_project:
-            QMessageBox.warning(self, "경고", "내보낼 프로젝트가 없습니다.")
+            QMessageBox.warning(self, "경고", "?�보???�로?�트가 ?�습?�다.")
             return
         
         data = self.get_current_data()
         if not data:
-            QMessageBox.warning(self, "경고", "내보낼 데이터가 없습니다.")
+            QMessageBox.warning(self, "경고", "?�보???�이?��? ?�습?�다.")
             return
         
         try:
             filename, _ = QFileDialog.getSaveFileName(
-                self, "Excel 파일로 저장", 
-                f"{self.current_project}_정산.xlsx",
+                self, "Excel ?�일�??�??, 
+                f"{self.current_project}_?�산.xlsx",
                 "Excel files (*.xlsx)"
             )
             
@@ -3076,23 +3051,23 @@ class InteriorSettlementApp(QMainWindow):
             df_data = []
             for item in data:
                 df_data.append({
-                    '작성자': item.get('user', ''),
-                    '날짜': item.get('date', ''),
+                    '?�성??: item.get('user', ''),
+                    '?�짜': item.get('date', ''),
                     '공정': item.get('process', ''),
-                    '항목명': item.get('name', '-'),
-                    '자재비': item.get('material_amount', 0) if item.get('material_amount', 0) > 0 else '',
-                    '인건비': item.get('labor_amount', 0) if item.get('labor_amount', 0) > 0 else '',
-                    '부가세': item.get('vat_amount', 0) if item.get('vat_included', False) else '',
+                    '??���?: item.get('name', '-'),
+                    '?�재�?: item.get('material_amount', 0) if item.get('material_amount', 0) > 0 else '',
+                    '?�건�?: item.get('labor_amount', 0) if item.get('labor_amount', 0) > 0 else '',
+                    '부가??: item.get('vat_amount', 0) if item.get('vat_included', False) else '',
                     '총액': item.get('total_amount', 0),
                     '메모': self.extract_text_from_html(item.get('memo', ''))
                 })
             
             df = pd.DataFrame(df_data)
             df.to_excel(filename, index=False)
-            QMessageBox.information(self, "성공", f"Excel 파일로 저장되었습니다.\n{filename}")
+            QMessageBox.information(self, "?�공", f"Excel ?�일�??�?�되?�습?�다.\n{filename}")
         
         except Exception as e:
-            QMessageBox.critical(self, "오류", f"Excel 파일 저장 중 오류가 발생했습니다:\n{str(e)}")
+            QMessageBox.critical(self, "?�류", f"Excel ?�일 ?�??�??�류가 발생?�습?�다:\n{str(e)}")
 
     def extract_text_from_html(self, html_content):
         if not html_content:
@@ -3115,7 +3090,7 @@ class InteriorSettlementApp(QMainWindow):
         if self.is_updating:
             return
         
-        # 저장 디바운싱 - 짧은 시간 내 반복 저장 방지
+        # ?�???�바?�싱 - 짧�? ?�간 ??반복 ?�??방�?
         if hasattr(self, '_save_timer') and self._save_timer.isActive():
             self._save_timer.stop()
         
@@ -3124,8 +3099,7 @@ class InteriorSettlementApp(QMainWindow):
             self._save_timer.timeout.connect(self._do_save_data)
             self._save_timer.setSingleShot(True)
         
-        self._save_timer.start(100)  # 100ms 후 저장
-    
+        self._save_timer.start(100)  # 100ms ???�??    
     def _do_save_data(self):
         try:
             if hasattr(self, 'firebase_sync') and self.firebase_sync:
@@ -3150,18 +3124,18 @@ class InteriorSettlementApp(QMainWindow):
                     
                 if hasattr(self, 'sync_status_label'):
                     if not (hasattr(self, 'firebase_sync') and self.firebase_sync and self.firebase_sync.db_ref):
-                        self.sync_status_label.setText("●")
+                        self.sync_status_label.setText("??)
                         self.sync_status_label.setStyleSheet("color: #6c757d; font-size: 9px; font-weight: bold; padding: 0px; background-color: transparent; border: none; min-width: 10px; max-width: 10px;")
-                        self.sync_status_label.setToolTip("로컬 저장됨")
+                        self.sync_status_label.setToolTip("로컬 ?�?�됨")
                         
             except:
-                QMessageBox.warning(self, "경고", "데이터 저장에 실패했습니다.")
+                QMessageBox.warning(self, "경고", "?�이???�?�에 ?�패?�습?�다.")
                 
         except:
             pass
 
     def load_all_data(self):
-        # 업데이트 플래그 확인 및 삭제
+        # ?�데?�트 ?�래�??�인 �???��
         exe_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else os.path.abspath(__file__))
         flag_path = os.path.join(exe_dir, "update_in_progress.flag")
         was_updated = False
@@ -3173,8 +3147,7 @@ class InteriorSettlementApp(QMainWindow):
             except:
                 pass
         
-        # 데이터 로드 재시도
-        max_retries = 3
+        # ?�이??로드 ?�시??        max_retries = 3
         retry_count = 0
         
         while retry_count < max_retries:
@@ -3182,7 +3155,7 @@ class InteriorSettlementApp(QMainWindow):
                 data_file = get_data_file_path()
                 if not os.path.exists(data_file):
                     if retry_count == 0:
-                        self.project_combo.addItem("프로젝트 관리")
+                        self.project_combo.addItem("?�로?�트 관�?)
                         self.current_project = None
                         self.table.setRowCount(0)
                         self.update_summary()
@@ -3192,24 +3165,23 @@ class InteriorSettlementApp(QMainWindow):
                 with open(data_file, 'r', encoding='utf-8') as f:
                     self.projects_data = json.load(f)
                 
-                # 데이터 로드 성공
+                # ?�이??로드 ?�공
                 break
                 
             except Exception as e:
                 retry_count += 1
                 if retry_count < max_retries:
-                    time.sleep(0.5)  # 0.5초 대기 후 재시도
-                else:
-                    # 최종 실패
+                    time.sleep(0.5)  # 0.5�??��????�시??                else:
+                    # 최종 ?�패
                     if retry_count == 1:
-                        self.project_combo.addItem("프로젝트 관리")
+                        self.project_combo.addItem("?�로?�트 관�?)
                         self.current_project = None
                         self.table.setRowCount(0)
                         self.update_summary()
                         self.update_ui_state()
                     return
         
-        # 데이터 로드 성공 시 UI 업데이트
+        # ?�이??로드 ?�공 ??UI ?�데?�트
         self.update_project_combo()
         
         if len(self.projects_data) > 0:
@@ -3231,11 +3203,11 @@ class InteriorSettlementApp(QMainWindow):
             self.update_summary()
             self.update_ui_state()
         
-        # 업데이트 완료 메시지
+        # ?�데?�트 ?�료 메시지
         if was_updated:
             QTimer.singleShot(1000, lambda: QMessageBox.information(
-                self, "업데이트 완료", 
-                f"프로그램이 성공적으로 업데이트되었습니다.\n현재 버전: {CURRENT_VERSION}"
+                self, "?�데?�트 ?�료", 
+                f"?�로그램???�공?�으�??�데?�트?�었?�니??\n?�재 버전: {CURRENT_VERSION}"
             ))
 
     def on_table_item_changed(self, item):
@@ -3253,14 +3225,13 @@ class InteriorSettlementApp(QMainWindow):
         old_item = current_item.copy()
         
         try:
-            if col == 0:  # 작성자
-                new_user = item.text().strip()
+            if col == 0:  # ?�성??                new_user = item.text().strip()
                 if new_user:
                     current_item['user'] = new_user
                 else:
                     item.setText(current_item.get('user', ''))
             
-            elif col == 1:  # 날짜
+            elif col == 1:  # ?�짜
                 date_text = item.text().strip()
                 if ' (' in date_text:
                     date_text = date_text.split(' (')[0]
@@ -3269,14 +3240,14 @@ class InteriorSettlementApp(QMainWindow):
                     date_obj = datetime.strptime(date_text, '%Y-%m-%d')
                     current_item['date'] = date_text
                     
-                    weekdays = ['월', '화', '수', '목', '금', '토', '일']
+                    weekdays = ['??, '??, '??, '�?, '�?, '??, '??]
                     weekday = weekdays[date_obj.weekday()]
                     item.setText(f"{date_text} ({weekday})")
                 except ValueError:
                     original_date = current_item.get('date', '')
                     if original_date:
                         date_obj = datetime.strptime(original_date, '%Y-%m-%d')
-                        weekdays = ['월', '화', '수', '목', '금', '토', '일']
+                        weekdays = ['??, '??, '??, '�?, '�?, '??, '??]
                         weekday = weekdays[date_obj.weekday()]
                         item.setText(f"{original_date} ({weekday})")
                     else:
@@ -3287,16 +3258,14 @@ class InteriorSettlementApp(QMainWindow):
                 current_item['process'] = new_process
                 item.setText(new_process)
             
-            elif col == 3:  # 항목명
-                new_name = item.text().strip()
+            elif col == 3:  # ??���?                new_name = item.text().strip()
                 if new_name:
                     current_item['name'] = new_name
                     item.setText(" " + new_name)
                 else:
                     item.setText(" " + current_item.get('name', '-'))
             
-            elif col == 4:  # 자재비
-                text = item.text().replace(',', '').replace('원', '').strip()
+            elif col == 4:  # ?�재�?                text = item.text().replace(',', '').replace('??, '').strip()
                 if text:
                     new_amount = int(text)
                     if new_amount >= 0:
@@ -3308,12 +3277,11 @@ class InteriorSettlementApp(QMainWindow):
                     new_amount = 0
                     current_item['material_amount'] = 0
                 
-                item.setText(f"{new_amount:,}원 " if new_amount > 0 else "")
+                item.setText(f"{new_amount:,}??" if new_amount > 0 else "")
                 self.recalculate_item_total(current_item)
                 self.update_row_totals(row)
             
-            elif col == 5:  # 인건비
-                text = item.text().replace(',', '').replace('원', '').strip()
+            elif col == 5:  # ?�건�?                text = item.text().replace(',', '').replace('??, '').strip()
                 if text:
                     new_amount = int(text)
                     if new_amount >= 0:
@@ -3325,7 +3293,7 @@ class InteriorSettlementApp(QMainWindow):
                     new_amount = 0
                     current_item['labor_amount'] = 0
                 
-                item.setText(f"{new_amount:,}원 " if new_amount > 0 else "")
+                item.setText(f"{new_amount:,}??" if new_amount > 0 else "")
                 self.recalculate_item_total(current_item)
                 self.update_row_totals(row)
             
@@ -3341,17 +3309,17 @@ class InteriorSettlementApp(QMainWindow):
                 original_date = current_item.get('date', '')
                 if original_date:
                     date_obj = datetime.strptime(original_date, '%Y-%m-%d')
-                    weekdays = ['월', '화', '수', '목', '금', '토', '일']
+                    weekdays = ['??, '??, '??, '�?, '�?, '??, '??]
                     weekday = weekdays[date_obj.weekday()]
                     item.setText(f"{original_date} ({weekday})")
                 else:
                     item.setText('')
             elif col == 4:
                 amount = current_item.get('material_amount', 0)
-                item.setText(f"{amount:,}원 " if amount > 0 else "")
+                item.setText(f"{amount:,}??" if amount > 0 else "")
             elif col == 5:
                 amount = current_item.get('labor_amount', 0)
-                item.setText(f"{amount:,}원 " if amount > 0 else "")
+                item.setText(f"{amount:,}??" if amount > 0 else "")
         
         self.update_summary()
     
@@ -3388,7 +3356,7 @@ class InteriorSettlementApp(QMainWindow):
         vat_item.setFlags(Qt.NoItemFlags | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.table.setItem(row, 6, vat_item)
         
-        total_text = f"{item.get('total_amount', 0):,}원 "
+        total_text = f"{item.get('total_amount', 0):,}??"
         total_item = QTableWidgetItem(total_text)
         total_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
         total_item.setFlags(Qt.NoItemFlags | Qt.ItemIsSelectable | Qt.ItemIsEnabled)
@@ -3399,13 +3367,13 @@ class InteriorSettlementApp(QMainWindow):
             if self.current_project:
                 default_filename = f"{self.current_project}_백업_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             else:
-                default_filename = f"정산데이터_백업_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                default_filename = f"?�산?�이??백업_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             
             filename, _ = QFileDialog.getSaveFileName(
                 self,
-                "데이터 백업 저장",
+                "?�이??백업 ?�??,
                 default_filename,
-                "JSON 파일 (*.json);;모든 파일 (*.*)"
+                "JSON ?�일 (*.json);;모든 ?�일 (*.*)"
             )
             
             if not filename:
@@ -3428,23 +3396,23 @@ class InteriorSettlementApp(QMainWindow):
             
             QMessageBox.information(
                 self,
-                "백업 완료",
-                f"데이터 백업이 완료되었습니다.\n\n"
-                f"파일: {filename}\n\n"
-                f"💡 참고: 데이터는 클라우드에 실시간 자동 저장됩니다.\n"
-                f"이 백업 파일은 추가 안전장치입니다."
+                "백업 ?�료",
+                f"?�이??백업???�료?�었?�니??\n\n"
+                f"?�일: {filename}\n\n"
+                f"?�� 참고: ?�이?�는 ?�라?�드???�시�??�동 ?�?�됩?�다.\n"
+                f"??백업 ?�일?� 추�? ?�전?�치?�니??"
             )
             
             self.statusBar().showMessage(
-                f"💾 백업 파일 생성 완료: {os.path.basename(filename)}", 
+                f"?�� 백업 ?�일 ?�성 ?�료: {os.path.basename(filename)}", 
                 5000
             )
             
         except Exception as e:
             QMessageBox.critical(
                 self,
-                "백업 오류",
-                f"백업 파일 생성 중 오류가 발생했습니다:\n{str(e)}"
+                "백업 ?�류",
+                f"백업 ?�일 ?�성 �??�류가 발생?�습?�다:\n{str(e)}"
             )
     
     def closeEvent(self, event):
@@ -3464,21 +3432,20 @@ class InteriorSettlementApp(QMainWindow):
                             'images': {}
                         }, ensure_ascii=False)
             
-            # 자동 백업 생성
+            # ?�동 백업 ?�성
             try:
                 exe_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else os.path.abspath(__file__))
                 backup_dir = os.path.join(exe_dir, "backups")
                 
-                # 백업 폴더가 없으면 생성
+                # 백업 ?�더가 ?�으�??�성
                 if not os.path.exists(backup_dir):
                     os.makedirs(backup_dir)
                 
-                # 백업 파일명 생성
+                # 백업 ?�일�??�성
                 backup_filename = f"auto_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
                 backup_path = os.path.join(backup_dir, backup_filename)
                 
-                # 백업 데이터 저장
-                save_data = {}
+                # 백업 ?�이???�??                save_data = {}
                 for project, items in self.projects_data.items():
                     save_data[project] = []
                     for item in items:
@@ -3493,22 +3460,20 @@ class InteriorSettlementApp(QMainWindow):
                     if hasattr(os, 'fsync'):
                         os.fsync(f.fileno())
                 
-                # 7일 이상 된 백업 파일 삭제
+                # 7???�상 ??백업 ?�일 ??��
                 current_time = time.time()
                 for filename in os.listdir(backup_dir):
                     if filename.startswith("auto_backup_") and filename.endswith(".json"):
                         file_path = os.path.join(backup_dir, filename)
                         file_time = os.path.getmtime(file_path)
-                        if current_time - file_time > 7 * 24 * 60 * 60:  # 7일
-                            try:
+                        if current_time - file_time > 7 * 24 * 60 * 60:  # 7??                            try:
                                 os.remove(file_path)
                             except:
                                 pass
             except:
                 pass
             
-            # 메인 데이터 파일 저장
-            try:
+            # 메인 ?�이???�일 ?�??            try:
                 data_file = get_data_file_path()
                 with open(data_file, 'w', encoding='utf-8') as f:
                     save_data = {}
@@ -3543,67 +3508,63 @@ class InteriorSettlementApp(QMainWindow):
         event.accept()
 
     def check_for_updates(self):
-        """업데이트 확인"""
+        """?�데?�트 ?�인"""
         try:
-            # 업데이트 버튼 비활성화
+            # ?�데?�트 버튼 비활?�화
             if hasattr(self, 'update_btn'):
                 self.update_btn.setEnabled(False)
-                self.update_btn.setText("확인 중...")
+                self.update_btn.setText("?�인 �?..")
             
-            # GitHub API를 통해 최신 릴리즈 확인
+            # GitHub API�??�해 최신 릴리�??�인
             response = requests.get(UPDATE_CHECK_URL, timeout=10)
             if response.status_code == 200:
                 release_data = response.json()
                 latest_version = release_data['tag_name'].lstrip('v')
                 
                 if self._compare_versions(latest_version, CURRENT_VERSION) > 0:
-                    # 업데이트 가능
-                    download_url = release_data['assets'][0]['browser_download_url']
+                    # ?�데?�트 가??                    download_url = release_data['assets'][0]['browser_download_url']
                     self.show_update_dialog(latest_version, download_url)
-                    # 업데이트 버튼 활성화 및 텍스트 변경
-                    if hasattr(self, 'update_btn'):
+                    # ?�데?�트 버튼 ?�성??�??�스??변�?                    if hasattr(self, 'update_btn'):
                         self.update_btn.setEnabled(True)
-                        self.update_btn.setText("업데이트 확인!")
+                        self.update_btn.setText("?�데?�트 ?�인!")
                         self.update_btn.setStyleSheet(BUTTON_STYLE)
                 else:
                     # 최신 버전
                     if latest_version == CURRENT_VERSION:
-                        # 완전히 동일한 버전
+                        # ?�전???�일??버전
                         QMessageBox.information(
                             self, 
-                            "업데이트 확인", 
-                            f"버전 {CURRENT_VERSION}\n\n최신 버전입니다."
+                            "?�데?�트 ?�인", 
+                            f"버전 {CURRENT_VERSION}\n\n최신 버전?�니??"
                         )
                     else:
-                        # 현재 버전이 더 높거나 다른 경우
+                        # ?�재 버전?????�거???�른 경우
                         QMessageBox.information(
                             self, 
-                            "업데이트 확인", 
-                            f"현재 버전: {CURRENT_VERSION}\n최신 버전: {latest_version}\n\n현재 사용 중인 버전이 더 최신입니다."
+                            "?�데?�트 ?�인", 
+                            f"?�재 버전: {CURRENT_VERSION}\n최신 버전: {latest_version}\n\n?�재 ?�용 중인 버전????최신?�니??"
                         )
-                    # 버튼을 "최신 버전"으로 변경하고 비활성화
+                    # 버튼??"최신 버전"?�로 변경하�?비활?�화
                     if hasattr(self, 'update_btn'):
                         self.update_btn.setEnabled(False)
                         self.update_btn.setText("최신 버전")
                         self.update_btn.setStyleSheet(GRAY_BUTTON_STYLE)
             else:
-                QMessageBox.warning(self, "업데이트 확인", "업데이트 서버에 연결할 수 없습니다.")
-                # 업데이트 버튼 다시 활성화
-                if hasattr(self, 'update_btn'):
+                QMessageBox.warning(self, "?�데?�트 ?�인", "?�데?�트 ?�버???�결?????�습?�다.")
+                # ?�데?�트 버튼 ?�시 ?�성??                if hasattr(self, 'update_btn'):
                     self.update_btn.setEnabled(True)
-                    self.update_btn.setText("업데이트 확인!")
+                    self.update_btn.setText("?�데?�트 ?�인!")
                     self.update_btn.setStyleSheet(BUTTON_STYLE)
                 
         except Exception as e:
-            QMessageBox.critical(self, "업데이트 확인", f"업데이트 확인 중 오류가 발생했습니다:\n{str(e)}")
-            # 업데이트 버튼 다시 활성화
-            if hasattr(self, 'update_btn'):
+            QMessageBox.critical(self, "?�데?�트 ?�인", f"?�데?�트 ?�인 �??�류가 발생?�습?�다:\n{str(e)}")
+            # ?�데?�트 버튼 ?�시 ?�성??            if hasattr(self, 'update_btn'):
                 self.update_btn.setEnabled(True)
-                self.update_btn.setText("업데이트 확인!")
+                self.update_btn.setText("?�데?�트 ?�인!")
                 self.update_btn.setStyleSheet(BUTTON_STYLE)
     
     def _compare_versions(self, version1, version2):
-        """버전 비교 (version1 > version2 이면 양수 반환)"""
+        """버전 비교 (version1 > version2 ?�면 ?�수 반환)"""
         v1_parts = [int(x) for x in version1.split('.')]
         v2_parts = [int(x) for x in version2.split('.')]
         
@@ -3616,36 +3577,36 @@ class InteriorSettlementApp(QMainWindow):
 
     def show_update_dialog(self, version, download_url):
         dialog = QDialog(self)
-        dialog.setWindowTitle("업데이트 알림")
+        dialog.setWindowTitle("?�데?�트 ?�림")
         dialog.setModal(True)
-        dialog.setFixedSize(800, 600)  # 크기를 2배로 증가
+        dialog.setFixedSize(800, 600)  # ?�기�?2배로 증�?
         
         layout = QVBoxLayout()
-        layout.setSpacing(30)  # 여백도 증가
+        layout.setSpacing(30)  # ?�백??증�?
         
-        # 제목
-        title_label = QLabel("새로운 버전이 있습니다!")
-        title_label.setStyleSheet("font-size: 32px; font-weight: bold; color: #2c3e50;")  # 2배 크기
+        # ?�목
+        title_label = QLabel("?�로??버전???�습?�다!")
+        title_label.setStyleSheet("font-size: 32px; font-weight: bold; color: #2c3e50;")  # 2�??�기
         title_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(title_label)
         
-        # 버전 정보
+        # 버전 ?�보
         version_info_widget = QWidget()
         version_layout = QVBoxLayout()
-        version_layout.setSpacing(20)  # 2배 크기
+        version_layout.setSpacing(20)  # 2�??�기
         
-        current_version_label = QLabel(f"현재 버전: {CURRENT_VERSION}")
-        current_version_label.setStyleSheet("font-size: 28px; color: #7f8c8d;")  # 2배 크기
+        current_version_label = QLabel(f"?�재 버전: {CURRENT_VERSION}")
+        current_version_label.setStyleSheet("font-size: 28px; color: #7f8c8d;")  # 2�??�기
         current_version_label.setAlignment(Qt.AlignCenter)
         version_layout.addWidget(current_version_label)
         
-        arrow_label = QLabel("↓")
-        arrow_label.setStyleSheet("font-size: 36px; color: #27ae60;")  # 2배 크기
+        arrow_label = QLabel("??)
+        arrow_label.setStyleSheet("font-size: 36px; color: #27ae60;")  # 2�??�기
         arrow_label.setAlignment(Qt.AlignCenter)
         version_layout.addWidget(arrow_label)
         
-        new_version_label = QLabel(f"새 버전: {version}")
-        new_version_label.setStyleSheet("font-size: 28px; color: #27ae60; font-weight: bold;")  # 2배 크기
+        new_version_label = QLabel(f"??버전: {version}")
+        new_version_label.setStyleSheet("font-size: 28px; color: #27ae60; font-weight: bold;")  # 2�??�기
         new_version_label.setAlignment(Qt.AlignCenter)
         version_layout.addWidget(new_version_label)
         
@@ -3654,24 +3615,22 @@ class InteriorSettlementApp(QMainWindow):
         
         layout.addStretch()
         
-        # 안내 메시지
-        info_label = QLabel("업데이트하시겠습니까?")
-        info_label.setStyleSheet("font-size: 24px; color: #7f8c8d;")  # 2배 크기
+        # ?�내 메시지
+        info_label = QLabel("?�데?�트?�시겠습?�까?")
+        info_label.setStyleSheet("font-size: 24px; color: #7f8c8d;")  # 2�??�기
         info_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(info_label)
         
         # 버튼
         button_layout = QHBoxLayout()
-        button_layout.setSpacing(20)  # 2배 크기
+        button_layout.setSpacing(20)  # 2�??�기
         
-        cancel_btn = QPushButton("나중에")
-        cancel_btn.setStyleSheet(GRAY_BUTTON_STYLE.replace("12px", "24px").replace("32px", "64px"))  # 폰트와 높이 2배
-        cancel_btn.setMinimumHeight(64)
+        cancel_btn = QPushButton("?�중??)
+        cancel_btn.setStyleSheet(GRAY_BUTTON_STYLE.replace("12px", "24px").replace("32px", "64px"))  # ?�트?� ?�이 2�?        cancel_btn.setMinimumHeight(64)
         cancel_btn.clicked.connect(dialog.reject)
         
-        ok_btn = QPushButton("지금 업데이트")
-        ok_btn.setStyleSheet(BUTTON_STYLE.replace("12px", "24px").replace("32px", "64px"))  # 폰트와 높이 2배
-        ok_btn.setMinimumHeight(64)
+        ok_btn = QPushButton("지�??�데?�트")
+        ok_btn.setStyleSheet(BUTTON_STYLE.replace("12px", "24px").replace("32px", "64px"))  # ?�트?� ?�이 2�?        ok_btn.setMinimumHeight(64)
         ok_btn.clicked.connect(lambda: (self.download_update(download_url), dialog.accept()))
         
         button_layout.addWidget(cancel_btn)
@@ -3688,45 +3647,44 @@ class InteriorSettlementApp(QMainWindow):
             import sys
             import subprocess
             
-            # 다운로드 URL 확인
-            url_filename = download_url.split('/')[-1].split('?')[0]  # 쿼리 파라미터 제거
+            # ?�운로드 URL ?�인
+            url_filename = download_url.split('/')[-1].split('?')[0]  # 쿼리 ?�라미터 ?�거
             
-            # GitHub 릴리즈 파일명이 올바른지 확인
+            # GitHub 릴리�??�일명이 ?�바른�? ?�인
             if url_filename not in ['HV-L.exe', 'HV-L.zip']:
                 QMessageBox.warning(
                     self, 
-                    "업데이트 설정 오류", 
-                    f"GitHub 릴리즈의 파일명이 올바르지 않습니다.\n"
-                    f"현재 파일명: {url_filename}\n"
-                    f"정상 파일명: HV-L.exe\n\n"
-                    f"GitHub 릴리즈 설정을 확인해주세요."
+                    "?�데?�트 ?�정 ?�류", 
+                    f"GitHub 릴리즈의 ?�일명이 ?�바르�? ?�습?�다.\n"
+                    f"?�재 ?�일�? {url_filename}\n"
+                    f"?�상 ?�일�? HV-L.exe\n\n"
+                    f"GitHub 릴리�??�정???�인?�주?�요."
                 )
                 return
             
-            # PyInstaller로 빌드된 exe 실행 중인지 확인
+            # PyInstaller�?빌드??exe ?�행 중인지 ?�인
             if getattr(sys, 'frozen', False):
-                # exe로 실행 중
-                current_exe = sys.executable
+                # exe�??�행 �?                current_exe = sys.executable
                 current_pid = os.getpid()
             else:
-                # Python으로 실행 중 - HV-L.exe 경로 찾기
+                # Python?�로 ?�행 �?- HV-L.exe 경로 찾기
                 current_dir = os.path.dirname(os.path.abspath(__file__))
                 current_exe = os.path.join(current_dir, "HV-L.exe")
                 current_pid = os.getpid()
                 if not os.path.exists(current_exe):
-                    QMessageBox.warning(self, "업데이트 오류", "HV-L.exe 파일을 찾을 수 없습니다.\n개발 환경에서는 업데이트를 사용할 수 없습니다.")
+                    QMessageBox.warning(self, "?�데?�트 ?�류", "HV-L.exe ?�일??찾을 ???�습?�다.\n개발 ?�경?�서???�데?�트�??�용?????�습?�다.")
                     return
             
             exe_dir = os.path.dirname(current_exe)
-            # 임시 파일명은 항상 동일하게 (GitHub 파일명과 무관하게)
+            # ?�시 ?�일명�? ??�� ?�일?�게 (GitHub ?�일명과 무�??�게)
             temp_exe_path = os.path.join(exe_dir, "HV-L_update_temp.exe")
 
-            # 진행률 표시 다이얼로그 (크기 2배로 증가)
-            progress_dialog = QProgressDialog("업데이트 다운로드 중...", "취소", 0, 100, self)
+            # 진행�??�시 ?�이?�로�?(?�기 2배로 증�?)
+            progress_dialog = QProgressDialog("?�데?�트 ?�운로드 �?..", "취소", 0, 100, self)
             progress_dialog.setWindowModality(Qt.WindowModal)
-            progress_dialog.setWindowTitle("업데이트")
-            progress_dialog.setMinimumWidth(800)  # 2배 크기
-            progress_dialog.setMinimumHeight(300)  # 2배 크기
+            progress_dialog.setWindowTitle("?�데?�트")
+            progress_dialog.setMinimumWidth(800)  # 2�??�기
+            progress_dialog.setMinimumHeight(300)  # 2�??�기
             progress_dialog.setStyleSheet("""
                 QProgressDialog {
                     font-size: 20px;
@@ -3743,22 +3701,21 @@ class InteriorSettlementApp(QMainWindow):
             """)
             progress_dialog.show()
 
-            # 기존 임시 파일 삭제
+            # 기존 ?�시 ?�일 ??��
             if os.path.exists(temp_exe_path):
                 try:
                     os.remove(temp_exe_path)
                 except:
                     pass
             
-            # 다운로드
+            # ?�운로드
             response = requests.get(download_url, stream=True)
             response.raise_for_status()
             
             total_size = int(response.headers.get('content-length', 0))
             downloaded = 0
             
-            # 파일 다운로드 및 저장
-            with open(temp_exe_path, 'wb') as f:
+            # ?�일 ?�운로드 �??�??            with open(temp_exe_path, 'wb') as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if progress_dialog.wasCanceled():
                         os.remove(temp_exe_path)
@@ -3774,34 +3731,29 @@ class InteriorSettlementApp(QMainWindow):
                     QApplication.processEvents()
                 
                 f.flush()
-                os.fsync(f.fileno())  # 파일 시스템 동기화
-            
+                os.fsync(f.fileno())  # ?�일 ?�스???�기??            
             progress_dialog.close()
             
-            # 다운로드한 파일 확인
+            # ?�운로드???�일 ?�인
             if not os.path.exists(temp_exe_path):
-                QMessageBox.critical(self, "오류", "업데이트 파일 다운로드에 실패했습니다.")
+                QMessageBox.critical(self, "?�류", "?�데?�트 ?�일 ?�운로드???�패?�습?�다.")
                 return
 
-            # 업데이트 플래그 파일 생성
+            # ?�데?�트 ?�래�??�일 ?�성
             flag_path = os.path.join(exe_dir, "update_in_progress.flag")
             with open(flag_path, "w") as f:
                 f.write("updating")
 
-            # 현재 데이터 저장
-            self.save_all_data()
+            # ?�재 ?�이???�??            self.save_all_data()
             
-            # 메모 저장
-            if self.current_memo_row >= 0:
+            # 메모 ?�??            if self.current_memo_row >= 0:
                 self.save_current_memo()
             
-            # 파일 시스템 동기화
-            if hasattr(os, 'sync'):
+            # ?�일 ?�스???�기??            if hasattr(os, 'sync'):
                 os.sync()
             
-            time.sleep(1)  # 저장 완료 대기
-
-            # bat 파일 생성 (더 안정적인 버전)
+            time.sleep(1)  # ?�???�료 ?��?
+            # bat ?�일 ?�성 (???�정?�인 버전)
             bat_path = os.path.join(exe_dir, "update.bat")
             vbs_path = os.path.join(exe_dir, "update_silent.vbs")
             
@@ -3809,16 +3761,15 @@ class InteriorSettlementApp(QMainWindow):
 chcp 65001 > nul 2>&1
 title HV-L Update
 
-REM 3초 대기
-timeout /t 3 /nobreak > nul 2>&1
+REM 3�??��?timeout /t 3 /nobreak > nul 2>&1
 
-REM 현재 프로세스 종료
+REM ?�재 ?�로?�스 종료
 if {current_pid} NEQ 0 (
     taskkill /F /PID {current_pid} > nul 2>&1
     timeout /t 2 /nobreak > nul 2>&1
 )
 
-REM HV-L.exe 프로세스 강제 종료
+REM HV-L.exe ?�로?�스 강제 종료
 :kill_process
 tasklist /FI "IMAGENAME eq HV-L.exe" 2>NUL | find /I "HV-L.exe" >NUL
 if "%ERRORLEVEL%"=="0" (
@@ -3827,7 +3778,7 @@ if "%ERRORLEVEL%"=="0" (
     goto kill_process
 )
 
-REM 기존 파일 삭제
+REM 기존 ?�일 ??��
 if exist "{current_exe}" (
     attrib -R -H -S "{current_exe}" > nul 2>&1
     del /F /Q "{current_exe}" > nul 2>&1
@@ -3837,62 +3788,60 @@ if exist "{current_exe}" (
     )
 )
 
-REM 새 파일로 교체
+REM ???�일�?교체
 move /Y "{temp_exe_path}" "{current_exe}" > nul 2>&1
 if not exist "{current_exe}" (
     copy /Y "{temp_exe_path}" "{current_exe}" > nul 2>&1
     del /F /Q "{temp_exe_path}" > nul 2>&1
 )
 
-REM 플래그 파일 삭제
+REM ?�래�??�일 ??��
 if exist "{flag_path}" del /F /Q "{flag_path}" > nul 2>&1
 
-REM 파일 시스템 동기화
-timeout /t 2 /nobreak > nul 2>&1
+REM ?�일 ?�스???�기??timeout /t 2 /nobreak > nul 2>&1
 
-REM 기타 업데이트 관련 파일 정리
+REM 기�? ?�데?�트 관???�일 ?�리
 if exist "{exe_dir}\\update_new.exe" del /F /Q "{exe_dir}\\update_new.exe" > nul 2>&1
 if exist "{exe_dir}\\update.exe" del /F /Q "{exe_dir}\\update.exe" > nul 2>&1
 if exist "{exe_dir}\\HV-L.exe.new" del /F /Q "{exe_dir}\\HV-L.exe.new" > nul 2>&1
 
-REM 임시 폴더 정리를 위한 추가 대기
-timeout /t 5 /nobreak > nul 2>&1
+REM ?�시 ?�더 ?�리�??�한 추�? ?��?timeout /t 5 /nobreak > nul 2>&1
 
-REM 프로그램 재시작 (새 창에서, 독립적으로)
+REM ?�로그램 ?�시??(??창에?? ?�립?�으�?
 cd /d "{exe_dir}"
 start /B "" cmd /c "timeout /t 2 /nobreak > nul 2>&1 && "{current_exe}""
 
-REM VBS 파일 삭제
+REM VBS ?�일 ??��
 timeout /t 1 /nobreak > nul 2>&1
 if exist "{vbs_path}" del /F /Q "{vbs_path}" > nul 2>&1
 
-REM bat 파일 자체 삭제
+REM bat ?�일 ?�체 ??��
 (goto) 2>nul & del "%~f0"
 '''
             with open(bat_path, "w", encoding="utf-8") as f:
                 f.write(bat_content)
 
-            # VBScript 파일 생성 (bat 파일을 백그라운드에서 실행)
+            # VBScript ?�일 ?�성 (bat ?�일??백그?�운?�에???�행)
             vbs_path = os.path.join(exe_dir, "update_silent.vbs")
             vbs_content = f'''Set objShell = CreateObject("WScript.Shell")
 objShell.Run """{bat_path}""", 0, False'''
             with open(vbs_path, "w", encoding="utf-8") as f:
                 f.write(vbs_content)
             
-            # VBScript 실행 (완전히 백그라운드에서)
+            # VBScript ?�행 (?�전??백그?�운?�에??
             subprocess.Popen(['wscript.exe', vbs_path], 
                            creationflags=subprocess.CREATE_NO_WINDOW | subprocess.DETACHED_PROCESS)
             
-            QMessageBox.information(self, "업데이트", "업데이트가 완료됩니다.\n\n잠시 후 프로그램이 자동으로 재시작됩니다.\n재시작되지 않으면 수동으로 실행해주세요.")
+            QMessageBox.information(self, "?�데?�트", "?�데?�트가 ?�료?�니??\n\n?�시 ???�로그램???�동?�로 ?�시?�됩?�다.\n?�시?�되지 ?�으�??�동?�로 ?�행?�주?�요.")
             
-            # 프로그램 종료
+            # ?�로그램 종료
             self.close()
             QApplication.quit()
 
         except Exception as e:
             if 'progress_dialog' in locals():
                 progress_dialog.close()
-            QMessageBox.critical(self, "오류", f"업데이트 다운로드 중 오류가 발생했습니다:\n{str(e)}")
+            QMessageBox.critical(self, "?�류", f"?�데?�트 ?�운로드 �??�류가 발생?�습?�다:\n{str(e)}")
 
     def background_update_check(self):
         try:
@@ -3901,12 +3850,11 @@ objShell.Run """{bat_path}""", 0, False'''
                 release_data = response.json()
                 latest_version = release_data['tag_name'].lstrip('v')
                 if self._compare_versions(latest_version, CURRENT_VERSION) > 0:
-                    # 업데이트 필요: 버튼 활성화, 텍스트/색상 변경
-                    self.update_btn.setEnabled(True)
-                    self.update_btn.setText("업데이트 필요!")
+                    # ?�데?�트 ?�요: 버튼 ?�성?? ?�스???�상 변�?                    self.update_btn.setEnabled(True)
+                    self.update_btn.setText("?�데?�트 ?�요!")
                     self.update_btn.setStyleSheet(BUTTON_STYLE.replace("#7d9471", "#d9534f").replace("#6d8062", "#c9302c").replace("#5d6f54", "#ac2925"))
                 else:
-                    # 최신 버전: 버튼 비활성화, '최신 버전' 텍스트, 회색 처리
+                    # 최신 버전: 버튼 비활?�화, '최신 버전' ?�스?? ?�색 처리
                     self.update_btn.setEnabled(False)
                     self.update_btn.setText("최신 버전")
                     self.update_btn.setStyleSheet(GRAY_BUTTON_STYLE)
@@ -3917,7 +3865,7 @@ objShell.Run """{bat_path}""", 0, False'''
 def main():
     app = QApplication(sys.argv)
     
-    font = QFont("맑은 고딕", 9)
+    font = QFont("맑�? 고딕", 9)
     app.setFont(font)
     
     USE_LOGIN = False
