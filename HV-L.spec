@@ -64,6 +64,8 @@ a = Analysis(
     excludes=[
         'pandas.tests',
         'numpy.tests',
+        'numpy.distutils.tests',
+        'numpy.f2py.tests',
         'PyQt5.QtTest',
         'PyQt5.QtWebEngine',
         'PyQt5.QtWebEngineCore',
@@ -81,7 +83,8 @@ a = Analysis(
         'sklearn',
         'IPython',
         'jupyter',
-        'notebook'
+        'notebook',
+        'tkinter'
     ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
