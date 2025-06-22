@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys
 import json
 import os
@@ -33,7 +33,7 @@ LEFT_PANEL_WIDTH = 350
 
 # 업데이트 관련 상수
 UPDATE_CHECK_URL = "https://api.github.com/repos/HVLAB-SJ/HV-LAB/releases/latest"  # GitHub 릴리즈 URL
-CURRENT_VERSION = "1.6.1"  # 현재 버전
+CURRENT_VERSION = "2.0"  # 현재 버전
 
 # Style constants
 BUTTON_STYLE = """
