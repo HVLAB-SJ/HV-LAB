@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# PyInstaller
+dist/
+build/
+*.spec.log
+*.exe
+
+# 민감한 파일
+serviceAccountKey.json
+*.key
+*.pem
+
+# 로컬 데이터
+interior_settlement_data.json
+backups/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+_temp_*.py 
