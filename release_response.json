@@ -1,0 +1,42 @@
+{
+  "url": "https://api.github.com/repos/HVLAB-SJ/HV-LAB/releases/226887287",
+  "assets_url": "https://api.github.com/repos/HVLAB-SJ/HV-LAB/releases/226887287/assets",
+  "upload_url": "https://uploads.github.com/repos/HVLAB-SJ/HV-LAB/releases/226887287/assets{?name,label}",
+  "html_url": "https://github.com/HVLAB-SJ/HV-LAB/releases/tag/v2.2",
+  "id": 226887287,
+  "author": {
+    "login": "HVLAB-SJ",
+    "id": 210679509,
+    "node_id": "U_kgDODI621Q",
+    "avatar_url": "https://avatars.githubusercontent.com/u/210679509?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/HVLAB-SJ",
+    "html_url": "https://github.com/HVLAB-SJ",
+    "followers_url": "https://api.github.com/users/HVLAB-SJ/followers",
+    "following_url": "https://api.github.com/users/HVLAB-SJ/following{/other_user}",
+    "gists_url": "https://api.github.com/users/HVLAB-SJ/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/HVLAB-SJ/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/HVLAB-SJ/subscriptions",
+    "organizations_url": "https://api.github.com/users/HVLAB-SJ/orgs",
+    "repos_url": "https://api.github.com/users/HVLAB-SJ/repos",
+    "events_url": "https://api.github.com/users/HVLAB-SJ/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/HVLAB-SJ/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "node_id": "RE_kwDOO-q_us4NhgZ3",
+  "tag_name": "v2.2",
+  "target_commitish": "master",
+  "name": "HV-L v2.2",
+  "draft": false,
+  "prerelease": false,
+  "created_at": "2025-06-22T09:36:19Z",
+  "published_at": "2025-06-22T09:53:27Z",
+  "assets": [
+
+  ],
+  "tarball_url": "https://api.github.com/repos/HVLAB-SJ/HV-LAB/tarball/v2.2",
+  "zipball_url": "https://api.github.com/repos/HVLAB-SJ/HV-LAB/zipball/v2.2",
+  "body": "## 변경사항\n\n- 업데이트된 기능들\n- 버그 수정\n\n## 다운로드\n\n아래 Assets에서 HV-L.exe를 다운로드하세요."
+}
